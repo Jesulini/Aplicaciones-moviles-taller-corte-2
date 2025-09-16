@@ -1,13 +1,43 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>register</ion-title>
+    <ion-title>Registro</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">register</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="floating">Nombre</ion-label>
+    <ion-input [(ngModel)]="nombre"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Correo</ion-label>
+    <ion-input type="email" [(ngModel)]="email"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Contraseña</ion-label>
+    <ion-input type="password" [(ngModel)]="password"></ion-input>
+  </ion-item>
+
+  <ion-list>
+    <ion-radio-group [(ngModel)]="idioma">
+      <ion-list-header>
+        <ion-label>Idioma</ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-label>Español</ion-label>
+        <ion-radio value="es"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Inglés</ion-label>
+        <ion-radio value="en"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>
+
+  <!-- ✅ Llama correctamente al método register() -->
+  <ion-button expand="block" (click)="register()">Registrarse</ion-button>
 </ion-content>

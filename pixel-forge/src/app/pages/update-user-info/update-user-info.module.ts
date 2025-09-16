@@ -8,12 +8,15 @@ import { UpdateUserInfoPageRoutingModule } from './update-user-info-routing.modu
 
 import { UpdateUserInfoPage } from './update-user-info.page';
 
+import { ComponentsModule } from 'src/app/components/components/components-module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    UpdateUserInfoPageRoutingModule
+    UpdateUserInfoPageRoutingModule,
+    ComponentsModule
   ],
   declarations: [UpdateUserInfoPage]
 })

@@ -7,11 +7,13 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   standalone: false,
 })
 export class ToggleTranslateComponent {
-  @Input() label: string = 'Translate';
+  @Input() label: string = '';   // 👈 AHORA sí existe
   @Input() isChecked: boolean = false;
   @Output() toggled = new EventEmitter<boolean>();
 
-  onToggleChange() {
-    this.toggled.emit(this.isChecked);
+  onToggleChange(event: any) {
+    const value = event.detail?.checked ?? event; // soporta ionic o boolean directo
+    this.isChecked = value;
+    this.toggled.emit(value);
   }
 }
