@@ -1,5 +1,7 @@
 {
-  "name": "ionic-app-base",
-  "integrations": {},
+  "name": "Pixel Forge",
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }

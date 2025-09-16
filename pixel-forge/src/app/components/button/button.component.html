@@ -1,0 +1,4 @@
+<ion-button [color]="color" [expand]="expand" (click)="onClick.emit()">
+  <ion-icon *ngIf="icon" [name]="icon" slot="start"></ion-icon>
+  {{ label }}
+</ion-button>
