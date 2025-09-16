@@ -1,20 +1,44 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>My Pixel-Forge Wallpapers</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <!-- Mostrar usuario que inició sesión -->
+  <ion-card *ngIf="currentUser">
+    <ion-card-header>
+      <ion-card-title>{{ currentUser.displayName || 'Usuario' }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Email: {{ currentUser.email }}
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="!currentUser">
+    <ion-card-content>
+      No hay usuario autenticado
+    </ion-card-content>
+  </ion-card>
+
+  <!-- FAB flotante -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="fabOpen = !fabOpen">
+      <ion-icon name="menu"></ion-icon>
+    </ion-fab-button>
+
+    <ion-fab-list *ngIf="fabOpen" side="top">
+      <ion-fab-button (click)="logout()">
+        <ion-icon name="log-out"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="updateUserInfo()">
+        <ion-icon name="person"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button>
+        <ion-icon name="ellipsis-horizontal"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+
 </ion-content>
