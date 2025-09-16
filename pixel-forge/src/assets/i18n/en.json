@@ -1,0 +1,20 @@
+{
+  "LOGIN": {
+    "TITLE": "Login",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "BUTTON": "Sign In",
+    "REGISTER": "Don't have an account? Register"
+  },
+  "REGISTER": {
+    "TITLE": "Register",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "LANGUAGE": "Language",
+    "BUTTON": "Sign Up",
+    "SPANISH": "Spanish",
+    "ENGLISH": "English",
+    "ALREADY_ACCOUNT": "Already have an account?"
+  }
+}

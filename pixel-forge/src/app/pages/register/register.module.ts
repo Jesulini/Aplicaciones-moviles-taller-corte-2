@@ -10,13 +10,16 @@ import { RegisterPage } from './register.page';
 
 import { ComponentsModule } from 'src/app/components/components/components-module';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     RegisterPageRoutingModule,
-    ComponentsModule
+    ComponentsModule,
+    TranslateModule
   ],
   declarations: [RegisterPage]
 })

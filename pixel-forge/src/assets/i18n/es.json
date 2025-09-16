@@ -1,0 +1,20 @@
+{
+  "LOGIN": {
+    "TITLE": "Iniciar sesión",
+    "EMAIL": "Correo",
+    "PASSWORD": "Contraseña",
+    "BUTTON": "Entrar",
+    "REGISTER": "¿No tienes cuenta? Regístrate"
+  },
+  "REGISTER": {
+    "TITLE": "Registro",
+    "NAME": "Nombre",
+    "EMAIL": "Correo",
+    "PASSWORD": "Contraseña",
+    "LANGUAGE": "Idioma",
+    "BUTTON": "Registrarse",
+    "SPANISH": "Español",
+    "ENGLISH": "Inglés",
+    "ALREADY_ACCOUNT": "¿Ya tienes una cuenta?"
+  }
+}

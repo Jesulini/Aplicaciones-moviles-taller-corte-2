@@ -1,43 +1,55 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Registro</ion-title>
+    <ion-title>{{ 'REGISTER.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+  <!-- Campos de registro -->
   <ion-item>
-    <ion-label position="floating">Nombre</ion-label>
+    <ion-label position="floating">{{ 'REGISTER.NAME' | translate }}</ion-label>
     <ion-input [(ngModel)]="nombre"></ion-input>
   </ion-item>
 
   <ion-item>
-    <ion-label position="floating">Correo</ion-label>
+    <ion-label position="floating">{{ 'REGISTER.EMAIL' | translate }}</ion-label>
     <ion-input type="email" [(ngModel)]="email"></ion-input>
   </ion-item>
 
   <ion-item>
-    <ion-label position="floating">Contraseña</ion-label>
+    <ion-label position="floating">{{ 'REGISTER.PASSWORD' | translate }}</ion-label>
     <ion-input type="password" [(ngModel)]="password"></ion-input>
   </ion-item>
 
+  <!-- Selección de idioma -->
   <ion-list>
-    <ion-radio-group [(ngModel)]="idioma">
+    <ion-radio-group [(ngModel)]="idioma" (ionChange)="changeLanguage($event.detail.value)">
       <ion-list-header>
-        <ion-label>Idioma</ion-label>
+        <ion-label>{{ 'REGISTER.LANGUAGE' | translate }}</ion-label>
       </ion-list-header>
 
       <ion-item>
-        <ion-label>Español</ion-label>
+        <ion-label>{{ 'REGISTER.SPANISH' | translate }}</ion-label>
         <ion-radio value="es"></ion-radio>
       </ion-item>
 
       <ion-item>
-        <ion-label>Inglés</ion-label>
+        <ion-label>{{ 'REGISTER.ENGLISH' | translate }}</ion-label>
         <ion-radio value="en"></ion-radio>
       </ion-item>
     </ion-radio-group>
   </ion-list>
 
-  <!-- ✅ Llama correctamente al método register() -->
-  <ion-button expand="block" (click)="register()">Registrarse</ion-button>
+  <!-- Botón de registrar -->
+  <ion-button expand="block" (click)="register()">
+    {{ 'REGISTER.BUTTON' | translate }}
+  </ion-button>
+
+  <!-- 🔹 Texto para ir a Login -->
+  <div class="ion-text-center" style="margin-top: 15px;">
+    <p>
+      {{ 'REGISTER.ALREADY_ACCOUNT' | translate }}
+      <a routerLink="/login">{{ 'LOGIN.TITLE' | translate }}</a>
+    </p>
+  </div>
 </ion-content>

@@ -10,13 +10,16 @@ import { LoginPage } from './login.page';
 
 import { ComponentsModule } from 'src/app/components/components/components-module';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     LoginPageRoutingModule,
-    ComponentsModule
+    ComponentsModule,
+    TranslateModule
   ],
   declarations: [LoginPage]
 })

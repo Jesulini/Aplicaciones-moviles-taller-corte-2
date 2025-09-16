@@ -1,23 +1,38 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Login</ion-title>
+    <ion-title>{{ 'LOGIN.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <ion-item>
-    <ion-label position="floating">Correo</ion-label>
+    <ion-label position="floating">{{ 'LOGIN.EMAIL' | translate }}</ion-label>
     <ion-input type="email" [(ngModel)]="email"></ion-input>
   </ion-item>
 
   <ion-item>
-    <ion-label position="floating">Contraseña</ion-label>
+    <ion-label position="floating">{{ 'LOGIN.PASSWORD' | translate }}</ion-label>
     <ion-input type="password" [(ngModel)]="password"></ion-input>
   </ion-item>
 
-  <ion-button expand="block" (click)="login()">Iniciar Sesión</ion-button>
+  <ion-button expand="block" (click)="login()">
+    {{ 'LOGIN.BUTTON' | translate }}
+  </ion-button>
 
   <ion-button expand="block" fill="clear" routerLink="/register">
-    ¿No tienes cuenta? Regístrate
+    {{ 'LOGIN.REGISTER' | translate }}
   </ion-button>
+
+  <ion-list>
+    <ion-radio-group (ionChange)="changeLanguage($event.detail.value)">
+      <ion-item>
+        <ion-label>Español</ion-label>
+        <ion-radio value="es"></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>English</ion-label>
+        <ion-radio value="en"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>
 </ion-content>
