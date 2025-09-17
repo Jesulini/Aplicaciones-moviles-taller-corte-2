@@ -5,40 +5,30 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <div *ngIf="currentUser; else noUser">
+    <h2>Bienvenido, {{ currentUser.name }}</h2>
+    <p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
+  </div>
 
-  <!-- Mostrar usuario que inició sesión -->
-  <ion-card *ngIf="currentUser">
-    <ion-card-header>
-      <ion-card-title>{{ currentUser.displayName || 'Usuario' }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      Email: {{ currentUser.email }}
-    </ion-card-content>
-  </ion-card>
+  <ng-template #noUser>
+    <p>No hay usuario logueado</p>
+  </ng-template>
 
-  <ion-card *ngIf="!currentUser">
-    <ion-card-content>
-      No hay usuario autenticado
-    </ion-card-content>
-  </ion-card>
-
-  <!-- FAB flotante -->
+  <!-- 🔹 Botón de acción flotante -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="fabOpen = !fabOpen">
+    <ion-fab-button>
       <ion-icon name="menu"></ion-icon>
     </ion-fab-button>
-
-    <ion-fab-list *ngIf="fabOpen" side="top">
+    <ion-fab-list side="top">
       <ion-fab-button (click)="logout()">
-        <ion-icon name="log-out"></ion-icon>
+        <ion-icon name="log-out-outline"></ion-icon>
       </ion-fab-button>
       <ion-fab-button (click)="updateUserInfo()">
-        <ion-icon name="person"></ion-icon>
+        <ion-icon name="create-outline"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button>
-        <ion-icon name="ellipsis-horizontal"></ion-icon>
+      <ion-fab-button (click)="optionThree()">
+        <ion-icon name="help-outline"></ion-icon>
       </ion-fab-button>
     </ion-fab-list>
   </ion-fab>
-
 </ion-content>

@@ -16,5 +16,16 @@
     "SPANISH": "Spanish",
     "ENGLISH": "English",
     "ALREADY_ACCOUNT": "Already have an account?"
-  }
+  },
+  "UPDATE_USER_INFO": {
+  "TITLE": "Update User Info",
+  "NAME": "Name",
+  "EMAIL": "Email",
+  "CURRENT_PASSWORD": "Current Password",
+  "NEW_PASSWORD": "New Password",
+  "LANGUAGE": "Language",
+  "BUTTON": "Update Info",
+  "SUCCESS": "✅ User updated successfully!",
+  "ERROR": "❌ Error updating user."
+}
 }

@@ -1,13 +1,60 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>update-user-info</ion-title>
+    <ion-buttons slot="start">
+      <!-- 🔙 Botón para volver a Home -->
+      <ion-button routerLink="/home" fill="clear">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'UPDATE_USER_INFO.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">update-user-info</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+
+  <form (ngSubmit)="updateUser()">
+
+    <ion-item>
+      <ion-label position="floating">{{ 'UPDATE_USER_INFO.NAME' | translate }}</ion-label>
+      <ion-input [(ngModel)]="displayName" name="name" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">{{ 'UPDATE_USER_INFO.EMAIL' | translate }}</ion-label>
+      <ion-input [(ngModel)]="email" name="email" type="email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">{{ 'UPDATE_USER_INFO.CURRENT_PASSWORD' | translate }}</ion-label>
+      <ion-input [(ngModel)]="password" name="currentPassword" type="password"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">{{ 'UPDATE_USER_INFO.NEW_PASSWORD' | translate }}</ion-label>
+      <ion-input [(ngModel)]="newPassword" name="newPassword" type="password"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>{{ 'UPDATE_USER_INFO.LANGUAGE' | translate }}</ion-label>
+      <ion-select [(ngModel)]="selectedLanguage" name="language" 
+                  (ionChange)="changeLanguage($event.detail.value)">
+        <ion-select-option value="es">{{ 'REGISTER.SPANISH' | translate }}</ion-select-option>
+        <ion-select-option value="en">{{ 'REGISTER.ENGLISH' | translate }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" color="primary">
+      {{ 'UPDATE_USER_INFO.BUTTON' | translate }}
+    </ion-button>
+
+    <ion-text color="success" *ngIf="successMessage">
+      <p>{{ 'UPDATE_USER_INFO.SUCCESS' | translate }}</p>
+    </ion-text>
+
+    <ion-text color="danger" *ngIf="errorMessage">
+      <p>{{ 'UPDATE_USER_INFO.ERROR' | translate }}</p>
+    </ion-text>
+
+  </form>
+
 </ion-content>

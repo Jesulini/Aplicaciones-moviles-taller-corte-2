@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth';
-import firebase from 'firebase/compat/app';
 
 @Component({
   selector: 'app-home',
@@ -10,25 +10,47 @@ import firebase from 'firebase/compat/app';
 })
 export class HomePage implements OnInit {
 
-  currentUser: firebase.User | null = null;
-  fabOpen = false;
+  currentUser: any = null;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    // 🔹 Usamos el método público
+    // 🔹 Inicialmente carga la info del usuario
+    this.loadUserInfo();
+  }
+
+  ionViewWillEnter() {
+    // 🔹 Se ejecuta cada vez que regresas a esta vista
+    this.loadUserInfo();
+  }
+
+  private loadUserInfo() {
     this.authService.getCurrentUser().subscribe(user => {
-      this.currentUser = user;
+      if (user) {
+        this.currentUser = {
+          name: user.displayName || 'Usuario',
+          email: user.email
+        };
+      } else {
+        this.currentUser = null;
+      }
     });
   }
 
   logout() {
     this.authService.logout().then(() => {
-      console.log('✅ Usuario deslogueado');
+      this.router.navigate(['/login']);
     });
   }
 
   updateUserInfo() {
-    console.log('🔹 Actualizar info del usuario');
+    this.router.navigate(['/update-user-info']);
+  }
+
+  optionThree() {
+    console.log("🔹 Opción 3 clickeada");
   }
 }
