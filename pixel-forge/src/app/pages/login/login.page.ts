@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth';
+import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-login',
@@ -9,25 +11,53 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./login.page.scss'],
   standalone: false,
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   email: string = '';
   password: string = '';
+  selectedLanguage: string = 'es';
 
-  constructor(private authService: AuthService, private router: Router, public translate: TranslateService) {
-    this.translate.setDefaultLang('es'); // idioma por defecto
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastCtrl: ToastController,
+    private translate: TranslateService
+  ) {}
+
+  async ngOnInit() {
+    const savedLang = await Preferences.get({ key: 'lang' });
+    if (savedLang.value) {
+      this.selectedLanguage = savedLang.value;
+      this.translate.use(savedLang.value);
+    }
   }
 
   async login() {
     try {
-      const cred = await this.authService.login(this.email, this.password);
-      console.log("✅ Login exitoso:", cred.user);
+      await this.authService.login(this.email, this.password);
+
+      const toast = await this.toastCtrl.create({
+        message: this.translate.instant('LOGIN.SUCCESS'),
+        duration: 2000,
+        color: 'success',
+      });
+      toast.present();
+
       this.router.navigate(['/home']);
     } catch (error) {
-      console.error("❌ Error en el login:", error);
+      console.error('❌ Error en login:', error);
+
+      const toast = await this.toastCtrl.create({
+        message: this.translate.instant('LOGIN.ERROR'),
+        duration: 2000,
+        color: 'danger',
+      });
+      toast.present();
     }
   }
 
-  changeLanguage(lang: string) {
+  async changeLanguage(lang: string) {
+    this.selectedLanguage = lang;
+    await Preferences.set({ key: 'lang', value: lang });
     this.translate.use(lang);
   }
 }

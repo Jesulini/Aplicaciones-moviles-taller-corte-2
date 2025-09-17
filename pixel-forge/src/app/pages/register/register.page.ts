@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth';
+import { ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-register',
@@ -9,33 +11,54 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./register.page.scss'],
   standalone: false,
 })
-export class RegisterPage {
-  nombre: string = '';
+export class RegisterPage implements OnInit {
   email: string = '';
   password: string = '';
+  nombre: string = '';
   idioma: string = 'es';
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    public translate: TranslateService
-  ) {
-    this.translate.setDefaultLang('es'); // idioma por defecto
-    this.translate.use(this.idioma);
-  }
+    private toastCtrl: ToastController,
+    private translate: TranslateService
+  ) {}
 
-  changeLanguage(lang: string) {
-    this.idioma = lang;
-    this.translate.use(lang);
+  async ngOnInit() {
+    const savedLang = await Preferences.get({ key: 'lang' });
+    if (savedLang.value) {
+      this.idioma = savedLang.value;
+      this.translate.use(savedLang.value);
+    }
   }
 
   async register() {
     try {
-      const cred = await this.authService.register(this.email, this.password, this.nombre, this.idioma);
-      console.log("✅ Registro exitoso:", cred.user);
+      await this.authService.register(this.email, this.password, this.nombre, this.idioma);
+
+      const toast = await this.toastCtrl.create({
+        message: this.translate.instant('REGISTER.SUCCESS'),
+        duration: 2000,
+        color: 'success',
+      });
+      toast.present();
+
       this.router.navigate(['/login']);
     } catch (error) {
-      console.error("❌ Error en el registro:", error);
+      console.error('❌ Error en registro:', error);
+
+      const toast = await this.toastCtrl.create({
+        message: this.translate.instant('REGISTER.ERROR'),
+        duration: 2000,
+        color: 'danger',
+      });
+      toast.present();
     }
+  }
+
+  async changeLanguage(lang: string) {
+    this.idioma = lang;
+    await Preferences.set({ key: 'lang', value: lang });
+    this.translate.use(lang);
   }
 }

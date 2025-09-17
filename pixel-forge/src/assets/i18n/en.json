@@ -4,7 +4,9 @@
     "EMAIL": "Email",
     "PASSWORD": "Password",
     "BUTTON": "Sign In",
-    "REGISTER": "Don't have an account? Register"
+    "REGISTER": "Don't have an account? Register",
+    "SUCCESS": "✅ Login successful!",
+    "ERROR": "❌ Invalid email or password."
   },
   "REGISTER": {
     "TITLE": "Register",
@@ -15,17 +17,27 @@
     "BUTTON": "Sign Up",
     "SPANISH": "Spanish",
     "ENGLISH": "English",
-    "ALREADY_ACCOUNT": "Already have an account?"
+    "ALREADY_ACCOUNT": "Already have an account?",
+    "SUCCESS": "✅ Account created successfully!",
+    "ERROR": "❌ Registration failed. Please try again."
   },
   "UPDATE_USER_INFO": {
-  "TITLE": "Update User Info",
-  "NAME": "Name",
-  "EMAIL": "Email",
-  "CURRENT_PASSWORD": "Current Password",
-  "NEW_PASSWORD": "New Password",
-  "LANGUAGE": "Language",
-  "BUTTON": "Update Info",
-  "SUCCESS": "✅ User updated successfully!",
-  "ERROR": "❌ Error updating user."
-}
+    "TITLE": "Update User Info",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "CURRENT_PASSWORD": "Current Password",
+    "NEW_PASSWORD": "New Password",
+    "LANGUAGE": "Language",
+    "BUTTON": "Update Info",
+    "SUCCESS": "✅ User updated successfully!",
+    "ERROR": "❌ Error updating user."
+  },
+  "HOME": {
+    "ACTIONS_TITLE": "Options",
+    "ACTIONS_MESSAGE": "Select an action",
+    "UPDATE_USER": "Update user",
+    "LOGOUT": "Log out",
+    "LOGOUT_SUCCESS": "✅ Logged out successfully",
+    "CANCEL": "Cancel"
+  }
 }

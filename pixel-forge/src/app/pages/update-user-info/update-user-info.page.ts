@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastController } from '@ionic/angular';
+import { Preferences } from '@capacitor/preferences';
 import firebase from 'firebase/compat/app';
 
 @Component({
@@ -11,20 +13,17 @@ import firebase from 'firebase/compat/app';
   standalone: false,
 })
 export class UpdateUserInfoPage implements OnInit {
-
   displayName: string = '';
   email: string = '';
   password: string = '';
   newPassword: string = '';
   selectedLanguage: string = 'es';
 
-  successMessage: boolean = false;
-  errorMessage: boolean = false;
-
   constructor(
     private authService: AuthService,
     private afAuth: AngularFireAuth,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private toastCtrl: ToastController
   ) {}
 
   ngOnInit() {
@@ -35,52 +34,58 @@ export class UpdateUserInfoPage implements OnInit {
       }
     });
 
-    // ✅ Cargar idioma guardado en localStorage
-    const savedLang = localStorage.getItem('lang');
-    if (savedLang) {
-      this.selectedLanguage = savedLang;
-      this.translate.use(savedLang);
+    // ✅ cargar idioma con Preferences
+    this.loadLang();
+  }
+
+  async loadLang() {
+    const { value } = await Preferences.get({ key: 'lang' });
+    if (value) {
+      this.selectedLanguage = value;
+      this.translate.use(value);
     }
   }
 
   async updateUser() {
-    this.successMessage = false;
-    this.errorMessage = false;
-
     try {
       const user = await this.afAuth.currentUser;
       if (!user) throw new Error('No user logged in');
 
-      // ✅ Reautenticación con la contraseña actual
       const cred = firebase.auth.EmailAuthProvider.credential(user.email!, this.password);
       await user.reauthenticateWithCredential(cred);
 
-      // ✅ Actualizar nombre
       if (this.displayName) {
         await user.updateProfile({ displayName: this.displayName });
       }
-
-      // ✅ Actualizar correo
       if (this.email && this.email !== user.email) {
         await user.updateEmail(this.email);
       }
-
-      // ✅ Actualizar contraseña
       if (this.newPassword) {
         await user.updatePassword(this.newPassword);
       }
 
-      this.successMessage = true;
+      const toast = await this.toastCtrl.create({
+        message: this.translate.instant('UPDATE_USER_INFO.SUCCESS'),
+        duration: 2000,
+        color: 'success'
+      });
+      toast.present();
+
     } catch (error) {
       console.error('❌ Error al actualizar usuario:', error);
-      this.errorMessage = true;
+
+      const toast = await this.toastCtrl.create({
+        message: this.translate.instant('UPDATE_USER_INFO.ERROR'),
+        duration: 2000,
+        color: 'danger'
+      });
+      toast.present();
     }
   }
 
-  // ✅ Cambio de idioma inmediato
-  changeLanguage(lang: string) {
+  async changeLanguage(lang: string) {
     this.selectedLanguage = lang;
-    localStorage.setItem('lang', lang);
+    await Preferences.set({ key: 'lang', value: lang });
     this.translate.use(lang);
   }
 }

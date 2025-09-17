@@ -4,7 +4,9 @@
     "EMAIL": "Correo",
     "PASSWORD": "Contraseña",
     "BUTTON": "Entrar",
-    "REGISTER": "¿No tienes cuenta? Regístrate"
+    "REGISTER": "¿No tienes cuenta? Regístrate",
+    "SUCCESS": "✅ Inicio de sesión exitoso.",
+    "ERROR": "❌ Correo o contraseña inválidos."
   },
   "REGISTER": {
     "TITLE": "Registro",
@@ -15,17 +17,27 @@
     "BUTTON": "Registrarse",
     "SPANISH": "Español",
     "ENGLISH": "Inglés",
-    "ALREADY_ACCOUNT": "¿Ya tienes una cuenta?"
+    "ALREADY_ACCOUNT": "¿Ya tienes una cuenta?",
+    "SUCCESS": "✅ Cuenta creada con éxito.",
+    "ERROR": "❌ Error en el registro. Inténtalo nuevamente."
   },
   "UPDATE_USER_INFO": {
-  "TITLE": "Actualizar datos de usuario",
-  "NAME": "Nombre",
-  "EMAIL": "Correo",
-  "CURRENT_PASSWORD": "Contraseña actual",
-  "NEW_PASSWORD": "Nueva contraseña",
-  "LANGUAGE": "Idioma",
-  "BUTTON": "Actualizar",
-  "SUCCESS": "✅ Usuario actualizado con éxito.",
-  "ERROR": "❌ Error al actualizar usuario."
-}
+    "TITLE": "Actualizar datos de usuario",
+    "NAME": "Nombre",
+    "EMAIL": "Correo",
+    "CURRENT_PASSWORD": "Contraseña actual",
+    "NEW_PASSWORD": "Nueva contraseña",
+    "LANGUAGE": "Idioma",
+    "BUTTON": "Actualizar",
+    "SUCCESS": "✅ Usuario actualizado con éxito.",
+    "ERROR": "❌ Error al actualizar usuario."
+  },
+  "HOME": {
+    "ACTIONS_TITLE": "Opciones",
+    "ACTIONS_MESSAGE": "Selecciona una acción",
+    "UPDATE_USER": "Actualizar usuario",
+    "LOGOUT": "Cerrar sesión",
+    "LOGOUT_SUCCESS": "✅ Sesión cerrada con éxito",
+    "CANCEL": "Cancelar"
+  }
 }

@@ -5,6 +5,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
   <div *ngIf="currentUser; else noUser">
     <h2>Bienvenido, {{ currentUser.name }}</h2>
     <p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
@@ -14,21 +15,10 @@
     <p>No hay usuario logueado</p>
   </ng-template>
 
-  <!-- 🔹 Botón de acción flotante -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button>
+    <ion-fab-button (click)="showActionSheet()">
       <ion-icon name="menu"></ion-icon>
     </ion-fab-button>
-    <ion-fab-list side="top">
-      <ion-fab-button (click)="logout()">
-        <ion-icon name="log-out-outline"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-button (click)="updateUserInfo()">
-        <ion-icon name="create-outline"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-button (click)="optionThree()">
-        <ion-icon name="help-outline"></ion-icon>
-      </ion-fab-button>
-    </ion-fab-list>
   </ion-fab>
+
 </ion-content>
