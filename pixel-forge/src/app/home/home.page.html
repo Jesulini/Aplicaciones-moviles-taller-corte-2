@@ -6,7 +6,8 @@
 
 <ion-content class="ion-padding">
 
-  <div *ngIf="currentUser; else noUser">
+  <!-- Mostrar usuario -->
+  <div *ngIf="currentUser; else noUser" class="user-info">
     <h2>Bienvenido, {{ currentUser.name }}</h2>
     <p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
   </div>
@@ -15,9 +16,27 @@
     <p>No hay usuario logueado</p>
   </ng-template>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <!-- Grid de archivos seleccionados -->
+  <div class="file-grid">
+    <ng-container *ngFor="let file of selectedFiles; let i = index">
+      <div class="file-item" (click)="openFileOptions(i)">
+        <img *ngIf="file.type.startsWith('image/')" [src]="file.data" />
+        <video *ngIf="file.type.startsWith('video/')" [src]="file.data" controls></video>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- FAB derecho: Action Sheet general -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="fab-right">
     <ion-fab-button (click)="showActionSheet()">
       <ion-icon name="menu"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- FAB izquierdo: Selección de archivo -->
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed" class="fab-left">
+    <ion-fab-button (click)="pickFile()">
+      <ion-icon name="cloud-upload"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
