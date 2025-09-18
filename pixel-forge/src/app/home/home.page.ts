@@ -3,8 +3,14 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth';
 import { ToastController, AlertController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { ActionSheet, ActionSheetButtonStyle } from '@capacitor/action-sheet';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
+
+interface WallpaperFile {
+  name: string;
+  url: string;
+  type: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -14,7 +20,8 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 })
 export class HomePage implements OnInit {
   currentUser: any = null;
-  selectedFiles: any[] = []; // array para múltiples archivos
+  selectedFiles: WallpaperFile[] = [];
+  private storage = getStorage();
 
   constructor(
     private authService: AuthService,
@@ -34,146 +41,114 @@ export class HomePage implements OnInit {
   }
 
   private loadUserInfo() {
-    this.authService.getCurrentUser().subscribe(user => {
+    this.authService.getCurrentUser().subscribe(async user => {
       if (user) {
         this.currentUser = {
+          id: user.uid,
           name: user.displayName || 'Usuario',
-          email: user.email
+          email: user.email || ''
         };
+        await this.loadUserWallpapers();
       } else {
         this.currentUser = null;
       }
     });
   }
 
-  // --- Action Sheet general híbrido ---
-  async showActionSheet() {
-    if (this.platform.is('hybrid')) {
-      const result = await ActionSheet.showActions({
-        title: this.translate.instant('HOME.ACTIONS_TITLE') || 'Opciones',
-        message: this.translate.instant('HOME.ACTIONS_MESSAGE') || 'Selecciona una acción',
-        options: [
-          { title: this.translate.instant('HOME.UPDATE_USER') || 'Actualizar usuario' },
-          { title: this.translate.instant('HOME.LOGOUT') || 'Cerrar sesión' },
-          { title: this.translate.instant('HOME.CANCEL') || 'Cancelar', style: ActionSheetButtonStyle.Cancel }
-        ]
-      });
+  private async loadUserWallpapers() {
+    if (!this.currentUser) return;
 
-      if (result.index === 0) this.updateUserInfo();
-      else if (result.index === 1) this.logout();
-    } else {
-      const alert = await this.alertCtrl.create({
-        header: this.translate.instant('HOME.ACTIONS_TITLE') || 'Opciones',
-        message: this.translate.instant('HOME.ACTIONS_MESSAGE') || 'Selecciona una acción',
-        buttons: [
-          { text: this.translate.instant('HOME.UPDATE_USER') || 'Actualizar usuario', handler: () => this.updateUserInfo() },
-          { text: this.translate.instant('HOME.LOGOUT') || 'Cerrar sesión', handler: () => this.logout() },
-          { text: this.translate.instant('HOME.CANCEL') || 'Cancelar', role: 'cancel' }
-        ]
-      });
-      await alert.present();
+    try {
+      const userRef = ref(this.storage, `wallpapers/${this.currentUser.id}`);
+      const list = await listAll(userRef);
+
+      const files: WallpaperFile[] = [];
+      for (const itemRef of list.items) {
+        const url = await getDownloadURL(itemRef);
+        files.push({ name: itemRef.name, url, type: this.getMimeType(itemRef.name) });
+      }
+      this.selectedFiles = files;
+    } catch (err) {
+      console.error('Error cargando wallpapers:', err);
     }
   }
 
-  // --- Selección de múltiples archivos ---
+  private getMimeType(filename: string) {
+    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
+    if (filename.endsWith('.png')) return 'image/png';
+    if (filename.endsWith('.mp4')) return 'video/mp4';
+    if (filename.endsWith('.webm')) return 'video/webm';
+    return 'application/octet-stream';
+  }
+
   async pickFile() {
+    if (!this.currentUser) return;
+
     try {
       const result = await FilePicker.pickFiles({
-        types: ['image/*', 'video/*'],
+        types: ['image/jpeg', 'image/png', 'video/mp4', 'video/webm'],
         readData: true
       });
 
-      if (result.files.length > 0) {
-        result.files.forEach(file => {
-          this.selectedFiles.push({
-            name: file.name,
-            type: file.mimeType,
-            data: 'data:' + file.mimeType + ';base64,' + file.data
-          });
-        });
+      for (const file of result.files) {
+        if (!file.data) continue;
+
+        // Convertir Base64 a ArrayBuffer
+        const arrayBuffer = Uint8Array.from(atob(file.data), c => c.charCodeAt(0));
+
+        const fileRef = ref(this.storage, `wallpapers/${this.currentUser.id}/${file.name}`);
+        await uploadBytes(fileRef, arrayBuffer);
+
+        const url = await getDownloadURL(fileRef);
+        this.selectedFiles.push({ name: file.name, url, type: file.mimeType || 'application/octet-stream' });
       }
-    } catch (error) {
-      console.log('No se seleccionó ningún archivo o hubo error:', error);
+    } catch (err) {
+      console.error('Error subiendo archivo:', err);
     }
   }
 
-  // --- Action Sheet híbrido para cada archivo ---
-  async openFileOptions(fileIndex: number) {
-    if (this.platform.is('hybrid')) {
-      try {
-        const result = await ActionSheet.showActions({
-          title: 'Opciones del wallpaper',
-          message: 'Selecciona una acción',
-          options: [
-            { title: 'Eliminar wallpaper', style: ActionSheetButtonStyle.Destructive },
-            { title: 'Establecer como fondo de pantalla' },
-            { title: 'Establecer como fondo de bloqueo' },
-            { title: 'Cancelar', style: ActionSheetButtonStyle.Cancel }
-          ]
-        });
-
-        switch (result.index) {
-          case 0:
-            this.deleteFile(fileIndex);
-            break;
-          case 1:
-            this.setAsWallpaper(fileIndex);
-            break;
-          case 2:
-            this.setAsLockScreen(fileIndex);
-            break;
-          default:
-            break;
-        }
-      } catch (error) {
-        console.log('Error al abrir opciones del archivo:', error);
-      }
-    } else {
-      const alert = await this.alertCtrl.create({
-        header: 'Opciones del wallpaper',
-        message: 'Selecciona una acción',
-        buttons: [
-          { text: 'Eliminar wallpaper', role: 'destructive', handler: () => this.deleteFile(fileIndex) },
-          { text: 'Establecer como fondo de pantalla', handler: () => this.setAsWallpaper(fileIndex) },
-          { text: 'Establecer como fondo de bloqueo', handler: () => this.setAsLockScreen(fileIndex) },
-          { text: 'Cancelar', role: 'cancel' }
-        ]
-      });
-      await alert.present();
+  async deleteFile(index: number) {
+    const file = this.selectedFiles[index];
+    try {
+      const fileRef = ref(this.storage, `wallpapers/${this.currentUser.id}/${file.name}`);
+      await deleteObject(fileRef);
+      this.selectedFiles.splice(index, 1);
+    } catch (err) {
+      console.error('Error eliminando archivo:', err);
     }
   }
 
-  // --- Métodos auxiliares para archivos ---
-  deleteFile(index: number) {
-    this.selectedFiles.splice(index, 1);
+  // Para el ActionSheet de cada archivo
+  async openFileOptions(index: number) {
+    const alert = await this.alertCtrl.create({
+      header: 'Opciones del wallpaper',
+      buttons: [
+        { text: 'Eliminar', role: 'destructive', handler: () => this.deleteFile(index) },
+        { text: 'Cancelar', role: 'cancel' }
+      ]
+    });
+    await alert.present();
   }
 
-  setAsWallpaper(index: number) {
-    const file = this.selectedFiles[index];
-    console.log('Establecer como fondo de pantalla:', file.name);
-    // Aquí implementas la lógica real según plataforma
-  }
-
-  setAsLockScreen(index: number) {
-    const file = this.selectedFiles[index];
-    console.log('Establecer como fondo de bloqueo:', file.name);
-    // Aquí implementas la lógica real según plataforma
+  async showActionSheet() {
+    const alert = await this.alertCtrl.create({
+      header: 'Opciones',
+      buttons: [
+        { text: 'Cerrar sesión', handler: () => this.logout() },
+        { text: 'Cancelar', role: 'cancel' }
+      ]
+    });
+    await alert.present();
   }
 
   async logout() {
     await this.authService.logout();
-
     const toast = await this.toastCtrl.create({
-      message: this.translate.instant('HOME.LOGOUT_SUCCESS') || 'Sesión cerrada con éxito',
+      message: 'Sesión cerrada con éxito',
       duration: 2000,
       color: 'warning'
     });
     toast.present();
-
     this.router.navigate(['/login']);
-  }
-
-  updateUserInfo() {
-    this.router.navigate(['/update-user-info']);
   }
 }

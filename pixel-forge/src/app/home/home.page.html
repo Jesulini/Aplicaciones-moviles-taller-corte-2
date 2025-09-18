@@ -20,8 +20,9 @@
   <div class="file-grid">
     <ng-container *ngFor="let file of selectedFiles; let i = index">
       <div class="file-item" (click)="openFileOptions(i)">
-        <img *ngIf="file.type.startsWith('image/')" [src]="file.data" />
-        <video *ngIf="file.type.startsWith('video/')" [src]="file.data" controls></video>
+        <!-- Cambiado file.data → file.url -->
+        <img *ngIf="file.type.startsWith('image/')" [src]="file.url" />
+        <video *ngIf="file.type.startsWith('video/')" [src]="file.url" controls></video>
       </div>
     </ng-container>
   </div>
