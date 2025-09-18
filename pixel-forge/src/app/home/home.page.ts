@@ -2,15 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth';
 import { ToastController, AlertController, Platform } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
-
-interface WallpaperFile {
-  name: string;
-  url: string;
-  type: string;
-}
+import { WallpaperService, WallpaperFile } from '../services/wallpaper';
 
 @Component({
   selector: 'app-home',
@@ -20,65 +13,48 @@ interface WallpaperFile {
 })
 export class HomePage implements OnInit {
   currentUser: any = null;
-  selectedFiles: WallpaperFile[] = [];
-  private storage = getStorage();
+  wallpapers: WallpaperFile[] = [];
+  isUploading = false;
 
   constructor(
     private authService: AuthService,
+    private wallpaperService: WallpaperService,
     private router: Router,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private translate: TranslateService,
     private platform: Platform
   ) {}
 
   ngOnInit() {
     this.loadUserInfo();
+    this.loadWallpapers();
   }
 
   ionViewWillEnter() {
     this.loadUserInfo();
+    this.loadWallpapers();
   }
 
   private loadUserInfo() {
-    this.authService.getCurrentUser().subscribe(async user => {
+    this.authService.getCurrentUser().subscribe(user => {
       if (user) {
         this.currentUser = {
           id: user.uid,
           name: user.displayName || 'Usuario',
           email: user.email || ''
         };
-        await this.loadUserWallpapers();
       } else {
         this.currentUser = null;
       }
     });
   }
 
-  private async loadUserWallpapers() {
-    if (!this.currentUser) return;
-
+  private async loadWallpapers() {
     try {
-      const userRef = ref(this.storage, `wallpapers/${this.currentUser.id}`);
-      const list = await listAll(userRef);
-
-      const files: WallpaperFile[] = [];
-      for (const itemRef of list.items) {
-        const url = await getDownloadURL(itemRef);
-        files.push({ name: itemRef.name, url, type: this.getMimeType(itemRef.name) });
-      }
-      this.selectedFiles = files;
+      this.wallpapers = await this.wallpaperService.listUserWallpapers();
     } catch (err) {
       console.error('Error cargando wallpapers:', err);
     }
-  }
-
-  private getMimeType(filename: string) {
-    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
-    if (filename.endsWith('.png')) return 'image/png';
-    if (filename.endsWith('.mp4')) return 'video/mp4';
-    if (filename.endsWith('.webm')) return 'video/webm';
-    return 'application/octet-stream';
   }
 
   async pickFile() {
@@ -92,33 +68,91 @@ export class HomePage implements OnInit {
 
       for (const file of result.files) {
         if (!file.data) continue;
+        
+        const mimeType = this.getMimeType(file.name);
+        const base64Data = file.data as string;
+        const blob = this.base64ToBlob(base64Data, mimeType);
 
-        // Convertir Base64 a ArrayBuffer
-        const arrayBuffer = Uint8Array.from(atob(file.data), c => c.charCodeAt(0));
+        this.isUploading = true;
+        const toast = await this.toastCtrl.create({
+          message: 'Guardando archivo...',
+          duration: 0,
+          color: 'primary'
+        });
+        await toast.present();
 
-        const fileRef = ref(this.storage, `wallpapers/${this.currentUser.id}/${file.name}`);
-        await uploadBytes(fileRef, arrayBuffer);
-
-        const url = await getDownloadURL(fileRef);
-        this.selectedFiles.push({ name: file.name, url, type: file.mimeType || 'application/octet-stream' });
+        try {
+          const newFile = await this.wallpaperService.uploadWallpaper(blob, file.name);
+          this.wallpapers.push(newFile);
+          
+          toast.dismiss();
+          const successToast = await this.toastCtrl.create({
+            message: 'Archivo guardado con éxito!',
+            duration: 2000,
+            color: 'success'
+          });
+          successToast.present();
+          
+        } catch (err) {
+          toast.dismiss();
+          const errorToast = await this.toastCtrl.create({
+            message: 'Error al guardar el archivo.',
+            duration: 2000,
+            color: 'danger'
+          });
+          errorToast.present();
+          console.error('Error al guardar el archivo:', err);
+        } finally {
+          this.isUploading = false;
+        }
       }
     } catch (err) {
-      console.error('Error subiendo archivo:', err);
+      console.error('Error seleccionando archivo:', err);
     }
+  }
+
+  private getMimeType(filename: string) {
+    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
+    if (filename.endsWith('.png')) return 'image/png';
+    if (filename.endsWith('.mp4')) return 'video/mp4';
+    if (filename.endsWith('.webm')) return 'video/webm';
+    return 'application/octet-stream';
+  }
+
+  private base64ToBlob(base64: string, mimeType: string) {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
   }
 
   async deleteFile(index: number) {
-    const file = this.selectedFiles[index];
-    try {
-      const fileRef = ref(this.storage, `wallpapers/${this.currentUser.id}/${file.name}`);
-      await deleteObject(fileRef);
-      this.selectedFiles.splice(index, 1);
-    } catch (err) {
-      console.error('Error eliminando archivo:', err);
+    const fileToDelete = this.wallpapers[index];
+    if (fileToDelete) {
+      try {
+        await this.wallpaperService.deleteWallpaper(fileToDelete.id);
+        this.wallpapers.splice(index, 1);
+        const toast = await this.toastCtrl.create({
+          message: 'Archivo eliminado con éxito!',
+          duration: 2000,
+          color: 'success'
+        });
+        toast.present();
+      } catch (err) {
+        console.error('Error al eliminar el archivo:', err);
+        const toast = await this.toastCtrl.create({
+          message: 'Error al eliminar el archivo.',
+          duration: 2000,
+          color: 'danger'
+        });
+        toast.present();
+      }
     }
   }
 
-  // Para el ActionSheet de cada archivo
   async openFileOptions(index: number) {
     const alert = await this.alertCtrl.create({
       header: 'Opciones del wallpaper',

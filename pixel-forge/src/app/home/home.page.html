@@ -1,44 +1,47 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>My Pixel-Forge Wallpapers</ion-title>
-  </ion-toolbar>
+<ion-toolbar>
+<ion-title>My Pixel-Forge Wallpapers</ion-title>
+</ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
-  <!-- Mostrar usuario -->
-  <div *ngIf="currentUser; else noUser" class="user-info">
-    <h2>Bienvenido, {{ currentUser.name }}</h2>
-    <p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
-  </div>
+<!-- Mostrar usuario -->
 
-  <ng-template #noUser>
-    <p>No hay usuario logueado</p>
-  </ng-template>
+<div *ngIf="currentUser; else noUser" class="user-info">
+<h2>Bienvenido, {{ currentUser.name }}</h2>
+<p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
+</div>
 
-  <!-- Grid de archivos seleccionados -->
-  <div class="file-grid">
-    <ng-container *ngFor="let file of selectedFiles; let i = index">
-      <div class="file-item" (click)="openFileOptions(i)">
-        <!-- Cambiado file.data → file.url -->
-        <img *ngIf="file.type.startsWith('image/')" [src]="file.url" />
-        <video *ngIf="file.type.startsWith('video/')" [src]="file.url" controls></video>
-      </div>
-    </ng-container>
-  </div>
+<ng-template #noUser>
+<p>No hay usuario logueado</p>
+</ng-template>
 
-  <!-- FAB derecho: Action Sheet general -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="fab-right">
-    <ion-fab-button (click)="showActionSheet()">
-      <ion-icon name="menu"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+<!-- Grid de archivos subidos -->
 
-  <!-- FAB izquierdo: Selección de archivo -->
-  <ion-fab vertical="bottom" horizontal="start" slot="fixed" class="fab-left">
-    <ion-fab-button (click)="pickFile()">
-      <ion-icon name="cloud-upload"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+<div class="file-grid">
+<ng-container *ngFor="let file of wallpapers; let i = index">
+<div class="file-item" (click)="openFileOptions(i)">
+<img *ngIf="file.type.startsWith('image/')" [src]="file.url" />
+<video *ngIf="file.type.startsWith('video/')" [src]="file.url" controls></video>
+</div>
+</ng-container>
+</div>
+
+<!-- FAB derecho: Opciones -->
+
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="fab-right">
+<ion-fab-button (click)="showActionSheet()">
+<ion-icon name="menu"></ion-icon>
+</ion-fab-button>
+</ion-fab>
+
+<!-- FAB izquierdo: Selección de archivo -->
+
+<ion-fab vertical="bottom" horizontal="start" slot="fixed" class="fab-left">
+<ion-fab-button (click)="pickFile()" [disabled]="isUploading">
+<ion-icon name="cloud-upload"></ion-icon>
+</ion-fab-button>
+</ion-fab>
 
 </ion-content>
