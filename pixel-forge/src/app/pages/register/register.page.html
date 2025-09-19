@@ -5,25 +5,26 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
   <!-- Campos de registro -->
   <ion-item>
     <ion-label position="floating">{{ 'REGISTER.NAME' | translate }}</ion-label>
-    <ion-input [(ngModel)]="nombre"></ion-input>
+    <ion-input [(ngModel)]="nombre" [disabled]="isLoading"></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-label position="floating">{{ 'REGISTER.EMAIL' | translate }}</ion-label>
-    <ion-input type="email" [(ngModel)]="email"></ion-input>
+    <ion-input type="email" [(ngModel)]="email" [disabled]="isLoading"></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-label position="floating">{{ 'REGISTER.PASSWORD' | translate }}</ion-label>
-    <ion-input type="password" [(ngModel)]="password"></ion-input>
+    <ion-input type="password" [(ngModel)]="password" [disabled]="isLoading"></ion-input>
   </ion-item>
 
   <!-- Selección de idioma -->
   <ion-list>
-    <ion-radio-group [(ngModel)]="idioma" (ionChange)="changeLanguage($event.detail.value)">
+    <ion-radio-group [(ngModel)]="idioma" (ionChange)="changeLanguage($event.detail.value)" [disabled]="isLoading">
       <ion-list-header>
         <ion-label>{{ 'REGISTER.LANGUAGE' | translate }}</ion-label>
       </ion-list-header>
@@ -41,7 +42,8 @@
   </ion-list>
 
   <!-- Botón de registrar -->
-  <ion-button expand="block" (click)="register()">
+  <ion-button expand="block" (click)="register()" [disabled]="isLoading || !email || !password || !nombre">
+    <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
     {{ 'REGISTER.BUTTON' | translate }}
   </ion-button>
 
@@ -52,4 +54,5 @@
       <a routerLink="/login">{{ 'LOGIN.TITLE' | translate }}</a>
     </p>
   </div>
+
 </ion-content>

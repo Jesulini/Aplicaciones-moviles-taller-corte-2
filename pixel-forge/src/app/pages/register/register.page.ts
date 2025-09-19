@@ -9,13 +9,13 @@ import { Preferences } from '@capacitor/preferences';
   selector: 'app-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
-  standalone: false,
 })
 export class RegisterPage implements OnInit {
   email: string = '';
   password: string = '';
   nombre: string = '';
   idioma: string = 'es';
+  isLoading: boolean = false; // ⚡ evita registro múltiple
 
   constructor(
     private authService: AuthService,
@@ -25,40 +25,50 @@ export class RegisterPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const savedLang = await Preferences.get({ key: 'lang' });
-    if (savedLang.value) {
-      this.idioma = savedLang.value;
-      this.translate.use(savedLang.value);
+    try {
+      const savedLang = await Preferences.get({ key: 'lang' });
+      if (savedLang.value) {
+        this.idioma = savedLang.value;
+        this.translate.use(savedLang.value);
+      }
+    } catch (err) {
+      console.warn('No se pudo cargar idioma guardado:', err);
     }
   }
 
   async register() {
+    if (this.isLoading) return; // ⚡ previene doble envío
+    if (!this.email || !this.password || !this.nombre) {
+      this.showToast(this.translate.instant('REGISTER.FILL_FIELDS'), 'warning');
+      return;
+    }
+
+    this.isLoading = true;
     try {
       await this.authService.register(this.email, this.password, this.nombre, this.idioma);
-
-      const toast = await this.toastCtrl.create({
-        message: this.translate.instant('REGISTER.SUCCESS'),
-        duration: 2000,
-        color: 'success',
-      });
-      toast.present();
-
+      this.showToast(this.translate.instant('REGISTER.SUCCESS'), 'success');
       this.router.navigate(['/login']);
     } catch (error) {
       console.error('❌ Error en registro:', error);
-
-      const toast = await this.toastCtrl.create({
-        message: this.translate.instant('REGISTER.ERROR'),
-        duration: 2000,
-        color: 'danger',
-      });
-      toast.present();
+      this.showToast(this.translate.instant('REGISTER.ERROR'), 'danger');
+    } finally {
+      this.isLoading = false;
     }
   }
 
   async changeLanguage(lang: string) {
     this.idioma = lang;
-    await Preferences.set({ key: 'lang', value: lang });
-    this.translate.use(lang);
+    try {
+      await Preferences.set({ key: 'lang', value: lang });
+      this.translate.use(lang);
+    } catch (err) {
+      console.warn('No se pudo cambiar idioma:', err);
+    }
+  }
+
+  // ⚡ Función reusable para toasts
+  private async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastCtrl.create({ message, duration: 2000, color });
+    toast.present();
   }
 }

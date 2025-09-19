@@ -5,26 +5,28 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
   <ion-item>
     <ion-label position="floating">{{ 'LOGIN.EMAIL' | translate }}</ion-label>
-    <ion-input type="email" [(ngModel)]="email"></ion-input>
+    <ion-input type="email" [(ngModel)]="email" [disabled]="isLoading"></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-label position="floating">{{ 'LOGIN.PASSWORD' | translate }}</ion-label>
-    <ion-input type="password" [(ngModel)]="password"></ion-input>
+    <ion-input type="password" [(ngModel)]="password" [disabled]="isLoading"></ion-input>
   </ion-item>
 
-  <ion-button expand="block" (click)="login()">
+  <ion-button expand="block" (click)="login()" [disabled]="isLoading || !email || !password">
+    <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
     {{ 'LOGIN.BUTTON' | translate }}
   </ion-button>
 
-  <ion-button expand="block" fill="clear" routerLink="/register">
+  <ion-button expand="block" fill="clear" routerLink="/register" [disabled]="isLoading">
     {{ 'LOGIN.REGISTER' | translate }}
   </ion-button>
 
   <ion-list>
-    <ion-radio-group (ionChange)="changeLanguage($event.detail.value)">
+    <ion-radio-group (ionChange)="changeLanguage($event.detail.value)" [disabled]="isLoading" value="{{selectedLanguage}}">
       <ion-item>
         <ion-label>Español</ion-label>
         <ion-radio value="es"></ion-radio>
@@ -35,4 +37,5 @@
       </ion-item>
     </ion-radio-group>
   </ion-list>
+
 </ion-content>

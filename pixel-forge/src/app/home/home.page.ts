@@ -9,7 +9,6 @@ import { WallpaperService, WallpaperFile } from '../services/wallpaper';
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
-  standalone: false,
 })
 export class HomePage implements OnInit {
   currentUser: any = null;
@@ -37,26 +36,23 @@ export class HomePage implements OnInit {
 
   private loadUserInfo() {
     this.authService.getCurrentUser().subscribe(user => {
-      if (user) {
-        this.currentUser = {
-          id: user.uid,
-          name: user.displayName || 'Usuario',
-          email: user.email || ''
-        };
-      } else {
-        this.currentUser = null;
-      }
+      this.currentUser = user
+        ? { id: user.uid, name: user.displayName || 'Usuario', email: user.email || '' }
+        : null;
     });
   }
 
+  // ⚡ Cargar wallpapers de forma segura y ligera
   private async loadWallpapers() {
     try {
-      this.wallpapers = await this.wallpaperService.listUserWallpapers();
+      const files = await this.wallpaperService.listUserWallpapers();
+      this.wallpapers = files.map(f => ({ ...f })); // clonar para evitar referencias pesadas
     } catch (err) {
       console.error('Error cargando wallpapers:', err);
     }
   }
 
+  // ⚡ Subida optimizada
   async pickFile() {
     if (!this.currentUser) return;
 
@@ -68,44 +64,33 @@ export class HomePage implements OnInit {
 
       for (const file of result.files) {
         if (!file.data) continue;
-        
-        const mimeType = this.getMimeType(file.name);
-        const base64Data = file.data as string;
-        const blob = this.base64ToBlob(base64Data, mimeType);
 
         this.isUploading = true;
-        const toast = await this.toastCtrl.create({
-          message: 'Guardando archivo...',
-          duration: 0,
-          color: 'primary'
-        });
+        const toast = await this.toastCtrl.create({ message: 'Guardando archivo...', duration: 0, color: 'primary' });
         await toast.present();
 
         try {
+          const mimeType = this.getMimeType(file.name);
+          // ⚡ Convertir Base64 a Blob sin bloquear el hilo UI
+          const blob = await this.base64ToBlobAsync(file.data as string, mimeType);
+
           const newFile = await this.wallpaperService.uploadWallpaper(blob, file.name);
           this.wallpapers.push(newFile);
-          
+
           toast.dismiss();
-          const successToast = await this.toastCtrl.create({
-            message: 'Archivo guardado con éxito!',
-            duration: 2000,
-            color: 'success'
-          });
+          const successToast = await this.toastCtrl.create({ message: 'Archivo guardado con éxito!', duration: 2000, color: 'success' });
           successToast.present();
-          
+
         } catch (err) {
           toast.dismiss();
-          const errorToast = await this.toastCtrl.create({
-            message: 'Error al guardar el archivo.',
-            duration: 2000,
-            color: 'danger'
-          });
+          const errorToast = await this.toastCtrl.create({ message: 'Error al guardar el archivo.', duration: 2000, color: 'danger' });
           errorToast.present();
           console.error('Error al guardar el archivo:', err);
         } finally {
           this.isUploading = false;
         }
       }
+
     } catch (err) {
       console.error('Error seleccionando archivo:', err);
     }
@@ -119,49 +104,33 @@ export class HomePage implements OnInit {
     return 'application/octet-stream';
   }
 
-  private base64ToBlob(base64: string, mimeType: string) {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: mimeType });
+  // ⚡ Conversión Base64 → Blob en un hilo asíncrono
+  private async base64ToBlobAsync(base64: string, mimeType: string) {
+    return new Promise<Blob>((resolve) => {
+      setTimeout(() => {
+        const byteCharacters = atob(base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
+        const byteArray = new Uint8Array(byteNumbers);
+        resolve(new Blob([byteArray], { type: mimeType }));
+      }, 0); // ⚡ deja que el hilo UI respire
+    });
   }
 
   async deleteFile(index: number) {
     const fileToDelete = this.wallpapers[index];
-    if (fileToDelete) {
-      try {
-        await this.wallpaperService.deleteWallpaper(fileToDelete.id);
-        this.wallpapers.splice(index, 1);
-        const toast = await this.toastCtrl.create({
-          message: 'Archivo eliminado con éxito!',
-          duration: 2000,
-          color: 'success'
-        });
-        toast.present();
-      } catch (err) {
-        console.error('Error al eliminar el archivo:', err);
-        const toast = await this.toastCtrl.create({
-          message: 'Error al eliminar el archivo.',
-          duration: 2000,
-          color: 'danger'
-        });
-        toast.present();
-      }
-    }
-  }
+    if (!fileToDelete) return;
 
-  async openFileOptions(index: number) {
-    const alert = await this.alertCtrl.create({
-      header: 'Opciones del wallpaper',
-      buttons: [
-        { text: 'Eliminar', role: 'destructive', handler: () => this.deleteFile(index) },
-        { text: 'Cancelar', role: 'cancel' }
-      ]
-    });
-    await alert.present();
+    try {
+      await this.wallpaperService.deleteWallpaper(fileToDelete.id);
+      this.wallpapers.splice(index, 1);
+      const toast = await this.toastCtrl.create({ message: 'Archivo eliminado con éxito!', duration: 2000, color: 'success' });
+      toast.present();
+    } catch (err) {
+      console.error('Error al eliminar archivo:', err);
+      const toast = await this.toastCtrl.create({ message: 'Error al eliminar archivo.', duration: 2000, color: 'danger' });
+      toast.present();
+    }
   }
 
   async showActionSheet() {
@@ -177,11 +146,7 @@ export class HomePage implements OnInit {
 
   async logout() {
     await this.authService.logout();
-    const toast = await this.toastCtrl.create({
-      message: 'Sesión cerrada con éxito',
-      duration: 2000,
-      color: 'warning'
-    });
+    const toast = await this.toastCtrl.create({ message: 'Sesión cerrada con éxito', duration: 2000, color: 'warning' });
     toast.present();
     this.router.navigate(['/login']);
   }
