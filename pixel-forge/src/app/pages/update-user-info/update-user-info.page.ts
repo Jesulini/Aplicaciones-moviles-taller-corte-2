@@ -10,7 +10,6 @@ import firebase from 'firebase/compat/app';
   selector: 'app-update-user-info',
   templateUrl: './update-user-info.page.html',
   styleUrls: ['./update-user-info.page.scss'],
-  standalone: false,
 })
 export class UpdateUserInfoPage implements OnInit {
   displayName: string = '';
@@ -18,6 +17,7 @@ export class UpdateUserInfoPage implements OnInit {
   password: string = '';
   newPassword: string = '';
   selectedLanguage: string = 'es';
+  isLoading: boolean = false; // ⚡ evita clics múltiples
 
   constructor(
     private authService: AuthService,
@@ -27,26 +27,41 @@ export class UpdateUserInfoPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.afAuth.currentUser.then(user => {
+    this.loadUserData();
+    this.loadLang();
+  }
+
+  async loadUserData() {
+    try {
+      const user = await this.afAuth.currentUser;
       if (user) {
         this.displayName = user.displayName || '';
         this.email = user.email || '';
       }
-    });
-
-    // ✅ cargar idioma con Preferences
-    this.loadLang();
+    } catch (err) {
+      console.error('Error cargando datos del usuario:', err);
+    }
   }
 
   async loadLang() {
-    const { value } = await Preferences.get({ key: 'lang' });
-    if (value) {
-      this.selectedLanguage = value;
-      this.translate.use(value);
+    try {
+      const { value } = await Preferences.get({ key: 'lang' });
+      if (value) {
+        this.selectedLanguage = value;
+        this.translate.use(value);
+      }
+    } catch (err) {
+      console.warn('No se pudo cargar idioma guardado:', err);
     }
   }
 
   async updateUser() {
+    if (this.isLoading) return;
+    if (!this.password) {
+      return this.showToast(this.translate.instant('UPDATE_USER_INFO.PASSWORD_REQUIRED'), 'warning');
+    }
+
+    this.isLoading = true;
     try {
       const user = await this.afAuth.currentUser;
       if (!user) throw new Error('No user logged in');
@@ -64,28 +79,28 @@ export class UpdateUserInfoPage implements OnInit {
         await user.updatePassword(this.newPassword);
       }
 
-      const toast = await this.toastCtrl.create({
-        message: this.translate.instant('UPDATE_USER_INFO.SUCCESS'),
-        duration: 2000,
-        color: 'success'
-      });
-      toast.present();
+      this.showToast(this.translate.instant('UPDATE_USER_INFO.SUCCESS'), 'success');
 
     } catch (error) {
       console.error('❌ Error al actualizar usuario:', error);
-
-      const toast = await this.toastCtrl.create({
-        message: this.translate.instant('UPDATE_USER_INFO.ERROR'),
-        duration: 2000,
-        color: 'danger'
-      });
-      toast.present();
+      this.showToast(this.translate.instant('UPDATE_USER_INFO.ERROR'), 'danger');
+    } finally {
+      this.isLoading = false;
     }
   }
 
   async changeLanguage(lang: string) {
     this.selectedLanguage = lang;
-    await Preferences.set({ key: 'lang', value: lang });
-    this.translate.use(lang);
+    try {
+      await Preferences.set({ key: 'lang', value: lang });
+      this.translate.use(lang);
+    } catch (err) {
+      console.warn('No se pudo cambiar idioma:', err);
+    }
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastCtrl.create({ message, duration: 2000, color });
+    toast.present();
   }
 }

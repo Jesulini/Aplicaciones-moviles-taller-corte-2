@@ -6,40 +6,46 @@
 
 <ion-content>
   <ion-list>
+
     <ion-item>
       <ion-label position="floating">{{ 'UPDATE_USER_INFO.NAME' | translate }}</ion-label>
-      <ion-input [(ngModel)]="displayName"></ion-input>
+      <ion-input [(ngModel)]="displayName" [disabled]="isLoading"></ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="floating">{{ 'UPDATE_USER_INFO.EMAIL' | translate }}</ion-label>
-      <ion-input [(ngModel)]="email"></ion-input>
+      <ion-input [(ngModel)]="email" [disabled]="isLoading"></ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="floating">{{ 'UPDATE_USER_INFO.CURRENT_PASSWORD' | translate }}</ion-label>
-      <ion-input [(ngModel)]="password" type="password"></ion-input>
+      <ion-input [(ngModel)]="password" type="password" [disabled]="isLoading"></ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="floating">{{ 'UPDATE_USER_INFO.NEW_PASSWORD' | translate }}</ion-label>
-      <ion-input [(ngModel)]="newPassword" type="password"></ion-input>
+      <ion-input [(ngModel)]="newPassword" type="password" [disabled]="isLoading"></ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label>{{ 'UPDATE_USER_INFO.LANGUAGE' | translate }}</ion-label>
-      <ion-select [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage($event.detail.value)">
+      <ion-select [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage($event.detail.value)" [disabled]="isLoading">
         <ion-select-option value="es">{{ 'REGISTER.SPANISH' | translate }}</ion-select-option>
         <ion-select-option value="en">{{ 'REGISTER.ENGLISH' | translate }}</ion-select-option>
       </ion-select>
     </ion-item>
+
   </ion-list>
 
-  <ion-button expand="block" (click)="updateUser()">
+  <ion-button 
+    expand="block" 
+    (click)="updateUser()" 
+    [disabled]="isLoading || !password">
+    <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
     {{ 'UPDATE_USER_INFO.BUTTON' | translate }}
   </ion-button>
 
-  <ion-button expand="block" routerLink="/home" color="medium">
+  <ion-button expand="block" routerLink="/home" color="medium" [disabled]="isLoading">
     ⬅ {{ 'LOGIN.TITLE' | translate }}
   </ion-button>
 </ion-content>
