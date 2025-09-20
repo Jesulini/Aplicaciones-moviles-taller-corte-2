@@ -1,54 +1,57 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>My Pixel-Forge Wallpapers</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="logout()">Salir</ion-button>
-    </ion-buttons>
+    <ion-title>{{ 'HOME.ACTIONS_TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-
-  <!-- Usuario -->
-  <div *ngIf="currentUser; else noUser" class="user-info">
-    <h2>Bienvenido, {{ currentUser.name }}</h2>
-    <p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
+  <!-- Mensaje de bienvenida -->
+  <div *ngIf="currentUser; else noUser" class="welcome-msg">
+    <h2>¡{{ 'HOME.UPDATE_USER' | translate }}, {{ currentUser.name }}!</h2>
+    <p>{{ 'HOME.ACTIONS_MESSAGE' | translate }}: <strong>{{ currentUser.email }}</strong></p>
   </div>
   <ng-template #noUser>
     <p>No hay usuario activo.</p>
   </ng-template>
 
-  <!-- Botón flotante para subir wallpaper -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="pickFile()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-
   <!-- Lista de wallpapers -->
   <ion-list *ngIf="wallpapers.length > 0; else noWallpapers">
-    <ion-item *ngFor="let wallpaper of wallpapers; let i = index" button (click)="openFileOptions(i)">
+    <ion-item *ngFor="let wallpaper of wallpapers; let i = index">
       <ion-thumbnail slot="start">
         <img [src]="wallpaper.url" />
       </ion-thumbnail>
       <ion-label>
         <h3>{{ wallpaper.name }}</h3>
       </ion-label>
-      <ion-button fill="clear" slot="end" (click)="deleteFile(i); $event.stopPropagation()">
-        <ion-icon name="trash-outline"></ion-icon>
-      </ion-button>
     </ion-item>
   </ion-list>
 
   <ng-template #noWallpapers>
-    <p class="ion-text-center">No tienes wallpapers aún. ¡Sube uno usando el botón +!</p>
+    <p class="ion-text-center">
+      No tienes wallpapers aún. ¡Sube uno usando los botones flotantes!
+    </p>
   </ng-template>
 
   <!-- Indicador de carga -->
-  <ion-loading
-    *ngIf="isUploading"
-    [isOpen]="isUploading"
-    message="Subiendo archivo...">
-  </ion-loading>
+  <ion-loading *ngIf="isUploading" [isOpen]="isUploading" message="Subiendo archivo..."></ion-loading>
 
+  <!-- FAB izquierdo: galería -->
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button (click)="pickFileFromGallery()">
+      <ion-icon name="images-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- FAB derecho: menú -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="fab-menu">
+    <ion-fab-button (click)="fabOptionsVisible = !fabOptionsVisible">
+      <ion-icon name="menu-outline"></ion-icon>
+    </ion-fab-button>
+
+    <ion-fab-list *ngIf="fabOptionsVisible" side="top">
+      <ion-fab-button color="primary" (click)="openFabOptions()">
+        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
 </ion-content>

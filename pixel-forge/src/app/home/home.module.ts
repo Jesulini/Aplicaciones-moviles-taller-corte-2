@@ -8,7 +8,7 @@ import { HomePageRoutingModule } from './home-routing.module';
 
 import { ComponentsModule } from 'src/app/components/components/components-module';
 
-
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -16,7 +16,9 @@ import { ComponentsModule } from 'src/app/components/components/components-modul
     FormsModule,
     IonicModule,
     HomePageRoutingModule,
-    ComponentsModule
+    ComponentsModule,
+    TranslateModule
+
   ],
   declarations: [HomePage]
 })

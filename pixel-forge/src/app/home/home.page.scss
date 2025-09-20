@@ -1,87 +1,103 @@
-#container {
+/* FAB derecho (menú) */
+.fab-menu {
+  ion-fab-button {
+    --background: #3880ff; /* azul vibrante */
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  /* Lista de opciones */
+  ion-fab-list {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 12px;
+
+    ion-fab-button {
+      --background: #ff6b6b; /* rojo suave para acciones */
+      --box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        --box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}
+
+/* FAB izquierdo (galería) */
+ion-fab[horizontal="start"] ion-fab-button {
+  --background: #10dc60; /* verde moderno */
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Mensaje de bienvenida */
+.welcome-msg {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-
-.user-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.file-preview {
-  margin-top: 20px;
-  text-align: center;
-
-  p {
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 4px;
     font-weight: bold;
-    margin-bottom: 10px;
-  }
-
-  img, video {
-    max-width: 90%;
-    max-height: 300px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    margin-bottom: 15px;
-  }
-}
-
-/* Ajuste de FABs para que no se superpongan */
-.fab-right {
-  margin-bottom: 20px;
-  margin-right: 20px;
-}
-
-.fab-left {
-  margin-bottom: 20px;
-  margin-left: 20px;
-}
-
-/* ================== Nueva cuadrícula para múltiples archivos ================== */
-.file-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); // 2 columnas
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.file-item {
-  text-align: center;
-
-  img, video {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    margin-bottom: 5px;
   }
 
   p {
-    font-size: 0.85rem;
-    word-break: break-word;
+    font-size: 1rem;
+    opacity: 0.9;
   }
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Lista de wallpapers */
+ion-list {
+  ion-item {
+    --background: #f9f9f9;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      --box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    ion-thumbnail {
+      border-radius: 8px;
+      overflow: hidden;
+
+      img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+
+/* Indicador de carga */
+ion-loading {
+  --spinner-color: #3880ff;
+  --backdrop-color: rgba(0,0,0,0.2);
 }

@@ -33,11 +33,14 @@
     "ERROR": "❌ Error updating user."
   },
   "HOME": {
+    "WELCOME": "Welcome, {{name}}!",
+    "EMAIL_INFO": "You are using the email: {{email}}",
     "ACTIONS_TITLE": "Options",
-    "ACTIONS_MESSAGE": "Select an action",
     "UPDATE_USER": "Update user",
     "LOGOUT": "Log out",
     "LOGOUT_SUCCESS": "✅ Logged out successfully",
-    "CANCEL": "Cancel"
+    "CANCEL": "Cancel",
+    "NO_USER": "No active user.",
+    "NO_WALLPAPERS": "You have no wallpapers yet. Upload one using the buttons below!"
   }
 }
