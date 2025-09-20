@@ -1,6 +1,10 @@
 [
   {
-    "origin": ["http://localhost:8100"],
+    "origin": [
+      "http://localhost:8100",
+      "http://10.0.2.2:8100",
+      "http://192.168.1.5:8100"
+    ],
     "method": ["GET", "POST", "PUT", "DELETE"],
     "maxAgeSeconds": 3600
   }
