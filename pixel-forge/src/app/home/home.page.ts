@@ -4,16 +4,24 @@ import { AuthService } from '../services/auth';
 import { ToastController, AlertController, Platform } from '@ionic/angular';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { WallpaperService, WallpaperFile } from '../services/wallpaper';
+import { registerPlugin } from '@capacitor/core';
+import type { MyWallpaperPlugin } from '../plugins/my-wallpaper-plugin';
+import { Preferences } from '@capacitor/preferences';
+
+// Registro tipado del plugin
+const MyWallpaper = registerPlugin<MyWallpaperPlugin>('MyWallpaper');
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
+  standalone: false,
 })
 export class HomePage implements OnInit {
   currentUser: any = null;
   wallpapers: WallpaperFile[] = [];
   isUploading = false;
+  fabOptionsVisible = false;
 
   constructor(
     private authService: AuthService,
@@ -24,7 +32,8 @@ export class HomePage implements OnInit {
     private platform: Platform
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.platform.ready();
     this.loadUserInfo();
     this.loadWallpapers();
   }
@@ -36,61 +45,67 @@ export class HomePage implements OnInit {
 
   private loadUserInfo() {
     this.authService.getCurrentUser().subscribe(user => {
-      this.currentUser = user
-        ? { id: user.uid, name: user.displayName || 'Usuario', email: user.email || '' }
-        : null;
+      if (user) {
+        this.currentUser = {
+          id: user.uid,
+          name: user.displayName || 'Usuario',
+          email: user.email || ''
+        };
+      } else {
+        this.currentUser = null;
+      }
     });
   }
 
-  // ⚡ Cargar wallpapers de forma segura y ligera
   private async loadWallpapers() {
+    if (!this.currentUser) return;
+
     try {
-      const files = await this.wallpaperService.listUserWallpapers();
-      this.wallpapers = files.map(f => ({ ...f })); // clonar para evitar referencias pesadas
+      this.wallpapers = await this.wallpaperService.listUserWallpapers();
     } catch (err) {
       console.error('Error cargando wallpapers:', err);
     }
   }
 
-  // ⚡ Subida optimizada
   async pickFile() {
-    if (!this.currentUser) return;
+    if (!this.currentUser) {
+      this.showToast('Debes iniciar sesión para subir archivos', 'warning');
+      return;
+    }
 
     try {
       const result = await FilePicker.pickFiles({
-        types: ['image/jpeg', 'image/png', 'video/mp4', 'video/webm'],
+        types: ['image/jpeg', 'image/png'],
         readData: true
       });
 
       for (const file of result.files) {
         if (!file.data) continue;
 
+        const mimeType = this.getMimeType(file.name);
+        const blob = this.base64ToBlob(file.data as string, mimeType);
+
         this.isUploading = true;
-        const toast = await this.toastCtrl.create({ message: 'Guardando archivo...', duration: 0, color: 'primary' });
+        const toast = await this.toastCtrl.create({
+          message: 'Guardando archivo...',
+          duration: 0,
+          color: 'primary'
+        });
         await toast.present();
 
         try {
-          const mimeType = this.getMimeType(file.name);
-          // ⚡ Convertir Base64 a Blob sin bloquear el hilo UI
-          const blob = await this.base64ToBlobAsync(file.data as string, mimeType);
-
           const newFile = await this.wallpaperService.uploadWallpaper(blob, file.name);
           this.wallpapers.push(newFile);
-
           toast.dismiss();
-          const successToast = await this.toastCtrl.create({ message: 'Archivo guardado con éxito!', duration: 2000, color: 'success' });
-          successToast.present();
-
+          this.showToast('Archivo guardado con éxito!', 'success');
         } catch (err) {
           toast.dismiss();
-          const errorToast = await this.toastCtrl.create({ message: 'Error al guardar el archivo.', duration: 2000, color: 'danger' });
-          errorToast.present();
+          this.showToast('Error al guardar el archivo.', 'danger');
           console.error('Error al guardar el archivo:', err);
         } finally {
           this.isUploading = false;
         }
       }
-
     } catch (err) {
       console.error('Error seleccionando archivo:', err);
     }
@@ -99,55 +114,90 @@ export class HomePage implements OnInit {
   private getMimeType(filename: string) {
     if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
     if (filename.endsWith('.png')) return 'image/png';
-    if (filename.endsWith('.mp4')) return 'video/mp4';
-    if (filename.endsWith('.webm')) return 'video/webm';
     return 'application/octet-stream';
   }
 
-  // ⚡ Conversión Base64 → Blob en un hilo asíncrono
-  private async base64ToBlobAsync(base64: string, mimeType: string) {
-    return new Promise<Blob>((resolve) => {
-      setTimeout(() => {
-        const byteCharacters = atob(base64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
-        const byteArray = new Uint8Array(byteNumbers);
-        resolve(new Blob([byteArray], { type: mimeType }));
-      }, 0); // ⚡ deja que el hilo UI respire
-    });
+  private base64ToBlob(base64: string, mimeType: string) {
+    const byteCharacters = atob(base64);
+    const byteNumbers = Array.from(byteCharacters).map(c => c.charCodeAt(0));
+    return new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
   }
 
   async deleteFile(index: number) {
-    const fileToDelete = this.wallpapers[index];
-    if (!fileToDelete) return;
+    const file = this.wallpapers[index];
+    if (!file) return;
 
     try {
-      await this.wallpaperService.deleteWallpaper(fileToDelete.id);
+      await this.wallpaperService.deleteWallpaper(file.id);
       this.wallpapers.splice(index, 1);
-      const toast = await this.toastCtrl.create({ message: 'Archivo eliminado con éxito!', duration: 2000, color: 'success' });
-      toast.present();
+      this.showToast('Archivo eliminado con éxito!', 'success');
     } catch (err) {
       console.error('Error al eliminar archivo:', err);
-      const toast = await this.toastCtrl.create({ message: 'Error al eliminar archivo.', duration: 2000, color: 'danger' });
-      toast.present();
+      this.showToast('Error al eliminar el archivo.', 'danger');
     }
   }
 
-  async showActionSheet() {
+  async openFileOptions(index: number) {
+    const file = this.wallpapers[index];
+    if (!file) return;
+
     const alert = await this.alertCtrl.create({
-      header: 'Opciones',
+      header: 'Opciones del wallpaper',
       buttons: [
-        { text: 'Cerrar sesión', handler: () => this.logout() },
+        { text: 'Establecer Home Screen', handler: () => this.setWallpaper(file, 'home') },
+        { text: 'Establecer Lock Screen', handler: () => this.setWallpaper(file, 'lock') },
+        { text: 'Eliminar', role: 'destructive', handler: () => this.deleteFile(index) },
         { text: 'Cancelar', role: 'cancel' }
       ]
     });
     await alert.present();
   }
 
+  private async setWallpaper(file: WallpaperFile, type: 'home' | 'lock') {
+    try {
+      const response = await fetch(file.url);
+      const blob = await response.blob();
+      const base64Data = await this.blobToBase64(blob);
+
+      if (type === 'home') {
+        await MyWallpaper.setHomeScreenWallpaper({ data: base64Data });
+      } else {
+        await MyWallpaper.setLockScreenWallpaper({ data: base64Data });
+      }
+
+      this.showToast(`Wallpaper aplicado en ${type === 'home' ? 'Home' : 'Lock'}!`, 'success');
+    } catch (err) {
+      console.error('Error aplicando wallpaper:', err);
+      this.showToast('No se pudo establecer el wallpaper.', 'danger');
+    }
+  }
+
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  toggleFabOptions() {
+    this.fabOptionsVisible = !this.fabOptionsVisible;
+  }
+
+  goToUpdateUser() {
+    this.router.navigate(['/update-user-info']);
+    this.fabOptionsVisible = false;
+  }
+
   async logout() {
     await this.authService.logout();
-    const toast = await this.toastCtrl.create({ message: 'Sesión cerrada con éxito', duration: 2000, color: 'warning' });
-    toast.present();
+    this.showToast('Sesión cerrada con éxito', 'warning');
     this.router.navigate(['/login']);
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastCtrl.create({ message, duration: 2000, color });
+    toast.present();
   }
 }

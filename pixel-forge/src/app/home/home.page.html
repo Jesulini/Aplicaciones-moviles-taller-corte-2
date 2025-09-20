@@ -1,47 +1,54 @@
 <ion-header>
-<ion-toolbar>
-<ion-title>My Pixel-Forge Wallpapers</ion-title>
-</ion-toolbar>
+  <ion-toolbar>
+    <ion-title>My Pixel-Forge Wallpapers</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">Salir</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
-<!-- Mostrar usuario -->
+  <!-- Usuario -->
+  <div *ngIf="currentUser; else noUser" class="user-info">
+    <h2>Bienvenido, {{ currentUser.name }}</h2>
+    <p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
+  </div>
+  <ng-template #noUser>
+    <p>No hay usuario activo.</p>
+  </ng-template>
 
-<div *ngIf="currentUser; else noUser" class="user-info">
-<h2>Bienvenido, {{ currentUser.name }}</h2>
-<p>Tu correo es: <strong>{{ currentUser.email }}</strong></p>
-</div>
+  <!-- Botón flotante para subir wallpaper -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="pickFile()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
-<ng-template #noUser>
-<p>No hay usuario logueado</p>
-</ng-template>
+  <!-- Lista de wallpapers -->
+  <ion-list *ngIf="wallpapers.length > 0; else noWallpapers">
+    <ion-item *ngFor="let wallpaper of wallpapers; let i = index" button (click)="openFileOptions(i)">
+      <ion-thumbnail slot="start">
+        <img [src]="wallpaper.url" />
+      </ion-thumbnail>
+      <ion-label>
+        <h3>{{ wallpaper.name }}</h3>
+      </ion-label>
+      <ion-button fill="clear" slot="end" (click)="deleteFile(i); $event.stopPropagation()">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
 
-<!-- Grid de archivos subidos -->
+  <ng-template #noWallpapers>
+    <p class="ion-text-center">No tienes wallpapers aún. ¡Sube uno usando el botón +!</p>
+  </ng-template>
 
-<div class="file-grid">
-<ng-container *ngFor="let file of wallpapers; let i = index">
-<div class="file-item" (click)="openFileOptions(i)">
-<img *ngIf="file.type.startsWith('image/')" [src]="file.url" />
-<video *ngIf="file.type.startsWith('video/')" [src]="file.url" controls></video>
-</div>
-</ng-container>
-</div>
-
-<!-- FAB derecho: Opciones -->
-
-<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="fab-right">
-<ion-fab-button (click)="showActionSheet()">
-<ion-icon name="menu"></ion-icon>
-</ion-fab-button>
-</ion-fab>
-
-<!-- FAB izquierdo: Selección de archivo -->
-
-<ion-fab vertical="bottom" horizontal="start" slot="fixed" class="fab-left">
-<ion-fab-button (click)="pickFile()" [disabled]="isUploading">
-<ion-icon name="cloud-upload"></ion-icon>
-</ion-fab-button>
-</ion-fab>
+  <!-- Indicador de carga -->
+  <ion-loading
+    *ngIf="isUploading"
+    [isOpen]="isUploading"
+    message="Subiendo archivo...">
+  </ion-loading>
 
 </ion-content>

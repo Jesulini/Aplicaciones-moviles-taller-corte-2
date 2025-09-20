@@ -8,20 +8,25 @@ export interface WallpaperFile {
   type: string;
 }
 
+interface StoredWallpaper extends WallpaperFile {
+  blob: Blob;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class WallpaperService {
   private auth = getAuth();
-  private db: IDBDatabase | null = null;
+  private db!: IDBDatabase;
+  private dbReady: Promise<void>;
   private readonly DB_NAME = 'MyWallpapersDB';
   private readonly STORE_NAME = 'wallpapers';
 
   constructor() {
-    this.openDb();
+    this.dbReady = this.initDb();
   }
 
-  private async openDb(): Promise<void> {
+  private initDb(): Promise<void> {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.DB_NAME, 1);
 
@@ -42,96 +47,67 @@ export class WallpaperService {
     });
   }
 
+  private async ensureDb() {
+    if (!this.db) await this.dbReady;
+  }
+
   async uploadWallpaper(file: Blob, fileName: string): Promise<WallpaperFile> {
-    if (!this.db) {
-      await this.openDb();
-    }
+    await this.ensureDb();
     const user = this.auth.currentUser;
     if (!user) throw new Error('Usuario no autenticado');
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(this.STORE_NAME, 'readwrite');
+      const transaction = this.db.transaction(this.STORE_NAME, 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      
-      const fileId = `${user.uid}-${fileName}-${Date.now()}`;
-      const newFile = {
-        id: fileId,
+
+      const id = `${user.uid}-${fileName}-${Date.now()}`;
+      const stored: StoredWallpaper = {
+        id,
         name: fileName,
-        url: URL.createObjectURL(file), // URL temporal para la vista previa
+        url: URL.createObjectURL(file),
         type: file.type,
-        blob: file // Guarda el blob para persistencia
-      };
-      
-      const request = store.add(newFile);
-
-      request.onsuccess = () => {
-        resolve({
-          id: newFile.id,
-          name: newFile.name,
-          url: newFile.url,
-          type: newFile.type
-        });
+        blob: file,
       };
 
-      request.onerror = () => {
-        reject('Error al guardar en IndexedDB');
-      };
+      const req = store.add(stored);
+
+      req.onsuccess = () => resolve({ id: stored.id, name: stored.name, url: stored.url, type: stored.type });
+      req.onerror = () => reject('Error al guardar en IndexedDB');
     });
   }
 
   async listUserWallpapers(): Promise<WallpaperFile[]> {
-    if (!this.db) {
-      await this.openDb();
-    }
+    await this.ensureDb();
     const user = this.auth.currentUser;
     if (!user) return [];
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(this.STORE_NAME, 'readonly');
+      const transaction = this.db.transaction(this.STORE_NAME, 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
-      const allFiles: WallpaperFile[] = [];
+      const files: WallpaperFile[] = [];
 
       store.openCursor().onsuccess = (event) => {
         const cursor = (event.target as IDBRequest).result;
         if (cursor) {
-          const file = cursor.value;
-          // Filtra archivos por usuario
-          if (file.id.startsWith(`${user.uid}-`)) {
-            allFiles.push({
-              id: file.id,
-              name: file.name,
-              url: URL.createObjectURL(file.blob),
-              type: file.type,
-            });
-          }
+          const file: StoredWallpaper = cursor.value;
+          if (file.id.startsWith(`${user.uid}-`)) files.push({ id: file.id, name: file.name, url: URL.createObjectURL(file.blob), type: file.type });
           cursor.continue();
-        } else {
-          resolve(allFiles);
-        }
+        } else resolve(files);
       };
 
-      transaction.onerror = (event) => {
-        reject('Error al listar archivos de IndexedDB');
-      };
+      transaction.onerror = () => reject('Error al listar archivos de IndexedDB');
     });
   }
 
   async deleteWallpaper(fileId: string): Promise<void> {
-    if (!this.db) {
-      await this.openDb();
-    }
+    await this.ensureDb();
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(this.STORE_NAME, 'readwrite');
+      const transaction = this.db.transaction(this.STORE_NAME, 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const request = store.delete(fileId);
 
-      request.onsuccess = () => {
-        resolve();
-      };
-      
-      request.onerror = () => {
-        reject('Error al eliminar de IndexedDB');
-      };
+      const req = store.delete(fileId);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject('Error al eliminar de IndexedDB');
     });
   }
 }

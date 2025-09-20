@@ -10,6 +10,7 @@ import firebase from 'firebase/compat/app';
   selector: 'app-update-user-info',
   templateUrl: './update-user-info.page.html',
   styleUrls: ['./update-user-info.page.scss'],
+  standalone: false,
 })
 export class UpdateUserInfoPage implements OnInit {
   displayName: string = '';
