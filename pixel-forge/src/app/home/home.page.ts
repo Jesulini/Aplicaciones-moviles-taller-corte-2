@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth';
+import { WallpaperService, WallpaperFile } from '../services/wallpaper';
 import { ToastController, AlertController, Platform } from '@ionic/angular';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { WallpaperService, WallpaperFile } from '../services/wallpaper';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -21,11 +21,11 @@ export class HomePage implements OnInit {
   constructor(
     private authService: AuthService,
     private wallpaperService: WallpaperService,
-    private router: Router,
+    public router: Router,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private platform: Platform,
-    private translate: TranslateService
+    public translate: TranslateService  // <-- público
   ) {}
 
   async ngOnInit() {
@@ -41,58 +41,39 @@ export class HomePage implements OnInit {
 
   private loadUserInfo() {
     this.authService.getCurrentUser().subscribe(user => {
-      if (user) {
-        this.currentUser = {
-          id: user.uid,
-          name: user.displayName || 'Usuario',
-          email: user.email || ''
-        };
-      } else {
-        this.currentUser = null;
-      }
+      this.currentUser = user ? { id: user.uid, name: user.displayName, email: user.email } : null;
     });
   }
 
   private async loadWallpapers() {
-    if (!this.currentUser) return;
-    try {
-      this.wallpapers = await this.wallpaperService.listUserWallpapers();
-    } catch (err) {
-      console.error('Error cargando wallpapers:', err);
-    }
+    this.wallpapers = await this.wallpaperService.listUserWallpapers();
   }
 
-  // FAB izquierdo: abrir galería
   async pickFileFromGallery() {
     try {
-      const result = await FilePicker.pickFiles({
-        types: ['image/jpeg', 'image/png'],
-        readData: true
-      });
-
+      const result = await FilePicker.pickFiles({ types: ['image/jpeg', 'image/png'], readData: true });
       for (const file of result.files) {
         if (!file.data) continue;
-
         const mimeType = this.getMimeType(file.name);
         const blob = this.base64ToBlob(file.data as string, mimeType);
 
         this.isUploading = true;
         const toast = await this.toastCtrl.create({
-          message: this.translate.instant('HOME.ACTIONS_MESSAGE') + '...', // mensaje traducido
+          message: this.translate.instant('HOME.UPLOADING') + '...',
           duration: 0,
           color: 'primary'
         });
         await toast.present();
 
         try {
-          const newFile = await this.wallpaperService.uploadWallpaper(blob, file.name);
-          this.wallpapers.push(newFile);
+          const newFile = await this.wallpaperService.uploadWallpaper(blob, `${Date.now()}_${file.name}`);
+          this.wallpapers.unshift(newFile); // agregamos al inicio
           toast.dismiss();
-          this.showToast(this.translate.instant('HOME.LOGOUT_SUCCESS'), 'success');
+          this.showToast(this.translate.instant('HOME.UPLOAD_SUCCESS'), 'success');
         } catch (err) {
           toast.dismiss();
-          this.showToast(this.translate.instant('UPDATE_USER_INFO.ERROR'), 'danger');
-          console.error('Error al guardar el archivo:', err);
+          console.error('Error subiendo imagen:', err);
+          this.showToast(this.translate.instant('HOME.UPLOAD_FAIL'), 'danger');
         } finally {
           this.isUploading = false;
         }
@@ -114,30 +95,31 @@ export class HomePage implements OnInit {
     return new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
   }
 
-  // FAB derecho: menú con opciones traducidas
-  async openFabOptions() {
-    const alert = await this.alertCtrl.create({
-      header: this.translate.instant('HOME.ACTIONS_TITLE'),
-      message: this.translate.instant('HOME.ACTIONS_MESSAGE'),
+  async deleteWallpaper(wallpaper: WallpaperFile) {
+    const confirm = await this.alertCtrl.create({
+      header: this.translate.instant('HOME.CONFIRM_DELETE'),
+      message: this.translate.instant('HOME.CONFIRM_DELETE_MSG'),
       buttons: [
+        { text: this.translate.instant('HOME.CANCEL'), role: 'cancel' },
         {
-          text: this.translate.instant('HOME.UPDATE_USER'),
-          handler: () => this.router.navigate(['/update-user-info'])
-        },
-        {
-          text: this.translate.instant('HOME.LOGOUT'),
-          role: 'destructive',
-          handler: () => this.logout()
-        },
-        { text: this.translate.instant('HOME.CANCEL'), role: 'cancel' }
+          text: this.translate.instant('HOME.DELETE'),
+          handler: async () => {
+            const ok = await this.wallpaperService.deleteWallpaper(wallpaper.name);
+            if (ok) {
+              this.wallpapers = this.wallpapers.filter(w => w.name !== wallpaper.name);
+              this.showToast(this.translate.instant('HOME.DELETE_SUCCESS'), 'success');
+            } else {
+              this.showToast(this.translate.instant('HOME.DELETE_FAIL'), 'danger');
+            }
+          }
+        }
       ]
     });
-    await alert.present();
+    await confirm.present();
   }
 
   async logout() {
     await this.authService.logout();
-    this.showToast(this.translate.instant('HOME.LOGOUT_SUCCESS'), 'warning');
     this.router.navigate(['/login']);
   }
 

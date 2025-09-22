@@ -10,7 +10,9 @@ import { Preferences } from '@capacitor/preferences';
 export class AuthService {
   constructor(private afAuth: AngularFireAuth) {}
 
-  // Registro con idioma
+  /**
+   * Registro de usuario con email, password, nombre e idioma
+   */
   async register(email: string, password: string, nombre: string, idioma: string) {
     try {
       const cred = await this.afAuth.createUserWithEmailAndPassword(email, password);
@@ -25,7 +27,9 @@ export class AuthService {
     }
   }
 
-  // Login
+  /**
+   * Login con email y password
+   */
   async login(email: string, password: string) {
     try {
       const cred = await this.afAuth.signInWithEmailAndPassword(email, password);
@@ -40,7 +44,9 @@ export class AuthService {
     }
   }
 
-  // Logout
+  /**
+   * Logout
+   */
   async logout() {
     try {
       await this.afAuth.signOut();
@@ -51,8 +57,17 @@ export class AuthService {
     }
   }
 
-  // Observable del usuario actual
+  /**
+   * Observable del usuario actual
+   */
   getCurrentUser(): Observable<firebase.User | null> {
     return this.afAuth.authState;
+  }
+
+  /**
+   * Devuelve el usuario actual de Firebase (Promise)
+   */
+  async getCurrentFirebaseUser(): Promise<firebase.User | null> {
+    return this.afAuth.currentUser;
   }
 }

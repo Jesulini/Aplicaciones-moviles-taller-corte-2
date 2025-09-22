@@ -5,7 +5,7 @@
     "PASSWORD": "Password",
     "BUTTON": "Sign In",
     "REGISTER": "Don't have an account? Register",
-    "SUCCESS": "✅ Login successful!",
+    "SUCCESS": "✅ Login successful.",
     "ERROR": "❌ Invalid email or password."
   },
   "REGISTER": {
@@ -18,8 +18,8 @@
     "SPANISH": "Spanish",
     "ENGLISH": "English",
     "ALREADY_ACCOUNT": "Already have an account?",
-    "SUCCESS": "✅ Account created successfully!",
-    "ERROR": "❌ Registration failed. Please try again."
+    "SUCCESS": "✅ Account created successfully.",
+    "ERROR": "❌ Registration error. Please try again."
   },
   "UPDATE_USER_INFO": {
     "TITLE": "Update User Info",
@@ -28,19 +28,27 @@
     "CURRENT_PASSWORD": "Current Password",
     "NEW_PASSWORD": "New Password",
     "LANGUAGE": "Language",
-    "BUTTON": "Update Info",
-    "SUCCESS": "✅ User updated successfully!",
+    "BUTTON": "Update",
+    "SUCCESS": "✅ User updated successfully.",
     "ERROR": "❌ Error updating user."
   },
   "HOME": {
     "WELCOME": "Welcome, {{name}}!",
-    "EMAIL_INFO": "You are using the email: {{email}}",
+    "EMAIL_INFO": "You are using email: {{email}}",
     "ACTIONS_TITLE": "Options",
-    "UPDATE_USER": "Update user",
-    "LOGOUT": "Log out",
+    "UPDATE_USER": "Update User",
+    "LOGOUT": "Logout",
     "LOGOUT_SUCCESS": "✅ Logged out successfully",
     "CANCEL": "Cancel",
+    "DELETE": "Delete",
+    "UPLOAD_SUCCESS": "✅ Image uploaded successfully",
+    "UPLOAD_FAIL": "❌ Failed to upload image",
+    "UPLOADING": "Uploading file",
+    "CONFIRM_DELETE": "Confirm Delete",
+    "CONFIRM_DELETE_MSG": "Do you want to delete this image?",
+    "DELETE_SUCCESS": "✅ Image deleted successfully",
+    "DELETE_FAIL": "❌ Failed to delete image",
     "NO_USER": "No active user.",
-    "NO_WALLPAPERS": "You have no wallpapers yet. Upload one using the buttons below!"
+    "NO_WALLPAPERS": "You don't have any wallpapers yet. Upload one using the buttons below!"
   }
 }

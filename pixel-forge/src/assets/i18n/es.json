@@ -40,6 +40,14 @@
     "LOGOUT": "Cerrar sesión",
     "LOGOUT_SUCCESS": "✅ Sesión cerrada con éxito",
     "CANCEL": "Cancelar",
+    "DELETE": "Borrar",
+    "UPLOAD_SUCCESS": "✅ Imagen subida con éxito",
+    "UPLOAD_FAIL": "❌ Error al subir imagen",
+    "UPLOADING": "Subiendo archivo",
+    "CONFIRM_DELETE": "Confirmar borrado",
+    "CONFIRM_DELETE_MSG": "¿Deseas eliminar esta imagen?",
+    "DELETE_SUCCESS": "✅ Imagen borrada con éxito",
+    "DELETE_FAIL": "❌ Error al borrar imagen",
     "NO_USER": "No hay usuario activo.",
     "NO_WALLPAPERS": "No tienes wallpapers aún. ¡Sube uno usando los botones abajo!"
   }
