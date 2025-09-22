@@ -4,55 +4,67 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
 
-  <!-- Campos de registro -->
-  <ion-item>
-    <ion-label position="floating">{{ 'REGISTER.NAME' | translate }}</ion-label>
-    <ion-input [(ngModel)]="nombre" [disabled]="isLoading"></ion-input>
-  </ion-item>
+  <div class="register-container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'REGISTER.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
 
-  <ion-item>
-    <ion-label position="floating">{{ 'REGISTER.EMAIL' | translate }}</ion-label>
-    <ion-input type="email" [(ngModel)]="email" [disabled]="isLoading"></ion-input>
-  </ion-item>
+      <ion-card-content>
+        <!-- Nombre -->
+        <ion-item>
+          <ion-label position="floating">{{ 'REGISTER.NAME' | translate }}</ion-label>
+          <ion-input [(ngModel)]="nombre" [disabled]="isLoading"></ion-input>
+        </ion-item>
 
-  <ion-item>
-    <ion-label position="floating">{{ 'REGISTER.PASSWORD' | translate }}</ion-label>
-    <ion-input type="password" [(ngModel)]="password" [disabled]="isLoading"></ion-input>
-  </ion-item>
+        <!-- Email -->
+        <ion-item>
+          <ion-label position="floating">{{ 'REGISTER.EMAIL' | translate }}</ion-label>
+          <ion-input type="email" [(ngModel)]="email" [disabled]="isLoading"></ion-input>
+        </ion-item>
 
-  <!-- Selección de idioma -->
-  <ion-list>
-    <ion-radio-group [(ngModel)]="idioma" (ionChange)="changeLanguage($event.detail.value)" [disabled]="isLoading">
-      <ion-list-header>
-        <ion-label>{{ 'REGISTER.LANGUAGE' | translate }}</ion-label>
-      </ion-list-header>
+        <!-- Password -->
+        <ion-item>
+          <ion-label position="floating">{{ 'REGISTER.PASSWORD' | translate }}</ion-label>
+          <ion-input type="password" [(ngModel)]="password" [disabled]="isLoading"></ion-input>
+        </ion-item>
 
-      <ion-item>
-        <ion-label>{{ 'REGISTER.SPANISH' | translate }}</ion-label>
-        <ion-radio value="es"></ion-radio>
-      </ion-item>
+        <!-- Selección de idioma -->
+        <ion-list>
+          <ion-radio-group [(ngModel)]="idioma" (ionChange)="changeLanguage($event.detail.value)" [disabled]="isLoading">
+            <ion-list-header>
+              <ion-label>{{ 'REGISTER.LANGUAGE' | translate }}</ion-label>
+            </ion-list-header>
 
-      <ion-item>
-        <ion-label>{{ 'REGISTER.ENGLISH' | translate }}</ion-label>
-        <ion-radio value="en"></ion-radio>
-      </ion-item>
-    </ion-radio-group>
-  </ion-list>
+            <ion-item>
+              <ion-label>{{ 'REGISTER.SPANISH' | translate }}</ion-label>
+              <ion-radio value="es"></ion-radio>
+            </ion-item>
 
-  <!-- Botón de registrar -->
-  <ion-button expand="block" (click)="register()" [disabled]="isLoading || !email || !password || !nombre">
-    <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
-    {{ 'REGISTER.BUTTON' | translate }}
-  </ion-button>
+            <ion-item>
+              <ion-label>{{ 'REGISTER.ENGLISH' | translate }}</ion-label>
+              <ion-radio value="en"></ion-radio>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
 
-  <!-- 🔹 Texto para ir a Login -->
-  <div class="ion-text-center" style="margin-top: 15px;">
-    <p>
-      {{ 'REGISTER.ALREADY_ACCOUNT' | translate }}
-      <a routerLink="/login">{{ 'LOGIN.TITLE' | translate }}</a>
-    </p>
+        <!-- Botón de registrar -->
+        <ion-button expand="block" (click)="register()" [disabled]="isLoading || !email || !password || !nombre">
+          <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
+          {{ 'REGISTER.BUTTON' | translate }}
+        </ion-button>
+
+        <!-- Link a Login -->
+        <div class="ion-text-center go-login">
+          <p>
+            {{ 'REGISTER.ALREADY_ACCOUNT' | translate }}
+            <a routerLink="/login">{{ 'LOGIN.TITLE' | translate }}</a>
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
   </div>
 
 </ion-content>

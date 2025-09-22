@@ -1,0 +1,135 @@
+/* Fondo animado degradado cálido */
+ion-content {
+  --background: linear-gradient(-45deg, #ff6b6b, #ffa34b, #ff6b6b, #ffb347);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Contenedor centrado */
+.login-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Tarjeta con efecto vidrio */
+ion-card {
+  width: 100%;
+  max-width: 380px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Header de la tarjeta */
+ion-card-header {
+  background: transparent;
+  padding: 20px;
+  text-align: center;
+}
+
+ion-card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+/* Items del formulario completamente transparentes */
+ion-item {
+  --background: transparent !important; /* <-- Sobrescribe el fondo por defecto */
+  --ion-item-background: transparent !important;
+  --highlight-color-focused: #ff914d;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  border-radius: 10px;
+  margin-top: 14px;
+  background: transparent !important;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+ion-input {
+  font-size: 1rem;
+  color: #ffffff;
+  --background: transparent !important;
+  background: transparent !important;
+}
+
+ion-label {
+  color: #ffffff;
+}
+
+/* Botones */
+ion-button {
+  --background: linear-gradient(135deg, #ff914d, #ff6b6b);
+  --background-activated: #e55b5b;
+  border-radius: 14px;
+  font-weight: bold;
+  margin-top: 18px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+  color: white;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(255, 111, 76, 0.4);
+  }
+}
+
+/* Mensajes de error */
+ion-note[color="danger"] {
+  font-size: 0.85rem;
+  margin-left: 10px;
+  margin-top: 5px;
+  display: block;
+  color: #ff4c4c;
+}
+
+/* Lista de idiomas transparente */
+ion-list {
+  width: 100%;
+  background: transparent !important;
+  --background: transparent !important;
+}
+
+ion-list ion-item {
+  --background: transparent !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+}
+
+ion-list ion-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15);
+}
+
+ion-list ion-label {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+ion-radio {
+  --background: transparent !important; /* <-- Quita el fondo negro */
+  --color: #ff914d;
+  --border-radius: 50%;
+  --checkmark-color: #ffffff;
+}

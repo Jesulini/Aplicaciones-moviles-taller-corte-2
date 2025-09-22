@@ -1,0 +1,140 @@
+/* Fondo animado degradado frío */
+ion-content {
+  --background: linear-gradient(-45deg, #74b9ff, #a29bfe, #dfe6e9, #81ecec);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Contenedor centrado */
+.register-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Tarjeta con efecto vidrio */
+ion-card {
+  width: 100%;
+  max-width: 380px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  }
+}
+
+ion-card-header {
+  background: transparent;
+  padding: 20px;
+  text-align: center;
+}
+
+ion-card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+/* Inputs transparentes */
+ion-item {
+  --background: transparent !important;
+  --ion-item-background: transparent !important;
+  --highlight-color-focused: #74b9ff;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  border-radius: 10px;
+  margin-top: 14px;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+ion-input {
+  font-size: 1rem;
+  color: #ffffff;
+  background: transparent !important;
+}
+
+ion-label {
+  color: #ffffff;
+}
+
+/* Botón frío */
+ion-button {
+  --background: linear-gradient(135deg, #00cec9, #0984e3);
+  --background-activated: #006994;
+  border-radius: 14px;
+  font-weight: bold;
+  margin-top: 18px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+  color: white;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0, 206, 201, 0.4);
+  }
+}
+
+/* Lista de idiomas transparente */
+ion-list {
+  width: 100%;
+  background: transparent !important;
+  --background: transparent !important;
+}
+
+ion-list-header ion-label {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+ion-list ion-item {
+  --background: transparent !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+}
+
+ion-list ion-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15);
+}
+
+ion-list ion-label {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+ion-radio {
+  --background: transparent !important;
+  --color: #74b9ff;
+  --border-radius: 50%;
+  --checkmark-color: #ffffff;
+}
+
+/* Link a login */
+.go-login p {
+  color: #dfe6e9;
+  font-size: 0.9rem;
+}
+
+.go-login a {
+  color: #81ecec;
+  font-weight: bold;
+  text-decoration: underline;
+}

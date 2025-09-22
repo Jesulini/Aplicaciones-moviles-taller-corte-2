@@ -1,0 +1,123 @@
+/* 🔥❄️ Fondo: gradiente animado de fuego y hielo */
+ion-content {
+  --background: linear-gradient(-45deg, #ff6b6b, #ffeaa7, #74b9ff, #a29bfe);
+  background-size: 400% 400%;
+  animation: gradientMove 10s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Contenedor centrado */
+.update-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Tarjeta con mezcla de fuego y hielo */
+ion-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  }
+}
+
+ion-card-header {
+  text-align: center;
+  padding: 20px;
+}
+
+ion-card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+/* Inputs */
+ion-item {
+  --background: transparent !important;
+  --ion-item-background: transparent !important;
+  --highlight-color-focused: #ff6b6b;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  border-radius: 10px;
+  margin-top: 14px;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+
+  &:focus-within {
+    border-color: #ffeaa7;
+    box-shadow: 0 0 12px rgba(255, 107, 107, 0.7),
+                0 0 20px rgba(116, 185, 255, 0.6);
+  }
+}
+
+ion-input {
+  font-size: 1rem;
+  color: #ffffff;
+  background: transparent !important;
+}
+
+ion-label {
+  color: #ffffff;
+}
+
+ion-select {
+  color: #ffffff;
+}
+
+ion-select::part(icon) {
+  color: #ffffff;
+}
+
+/* Botón principal (Actualizar) */
+.btn-update {
+  --background: linear-gradient(135deg, #ff7675, #74b9ff);
+  --background-activated: linear-gradient(135deg, #d63031, #0984e3);
+  border-radius: 14px;
+  font-weight: bold;
+  margin-top: 18px;
+  color: white;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(255, 107, 107, 0.5),
+                0 0 20px rgba(116, 185, 255, 0.4);
+  }
+}
+
+/* Botón volver (🔥❄️ estilo secundario) */
+.btn-back {
+  --background: linear-gradient(135deg, rgba(255,118,117,0.4), rgba(116,185,255,0.4));
+  --background-activated: linear-gradient(135deg, rgba(214,48,49,0.6), rgba(9,132,227,0.6));
+  border-radius: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: white;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(255, 107, 107, 0.4),
+                0 0 12px rgba(116, 185, 255, 0.3);
+  }
+}

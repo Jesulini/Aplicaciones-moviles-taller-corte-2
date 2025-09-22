@@ -15,6 +15,8 @@ import { TranslateService } from '@ngx-translate/core';
 export class HomePage implements OnInit {
   currentUser: any = null;
   wallpapers: WallpaperFile[] = [];
+  displayedWallpapers: WallpaperFile[] = [];
+  itemsPerPage = 6; // Cuántos cargar por "página"
   isUploading = false;
   fabOptionsVisible = false;
 
@@ -25,13 +27,13 @@ export class HomePage implements OnInit {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private platform: Platform,
-    public translate: TranslateService  // <-- público
+    public translate: TranslateService
   ) {}
 
   async ngOnInit() {
     await this.platform.ready();
     this.loadUserInfo();
-    this.loadWallpapers();
+    await this.loadWallpapers();
   }
 
   ionViewWillEnter() {
@@ -41,17 +43,46 @@ export class HomePage implements OnInit {
 
   private loadUserInfo() {
     this.authService.getCurrentUser().subscribe(user => {
-      this.currentUser = user ? { id: user.uid, name: user.displayName, email: user.email } : null;
+      this.currentUser = user
+        ? { id: user.uid, name: user.displayName, email: user.email }
+        : null;
     });
   }
 
   private async loadWallpapers() {
     this.wallpapers = await this.wallpaperService.listUserWallpapers();
+    this.loadInitialWallpapers();
+  }
+
+  /** Carga los primeros wallpapers */
+  private loadInitialWallpapers() {
+    this.displayedWallpapers = this.wallpapers.slice(0, this.itemsPerPage);
+  }
+
+  /** Carga más wallpapers con infinite scroll */
+  loadMoreWallpapers(event: any) {
+    setTimeout(() => {
+      const nextItems = this.wallpapers.slice(
+        this.displayedWallpapers.length,
+        this.displayedWallpapers.length + this.itemsPerPage
+      );
+      this.displayedWallpapers = [...this.displayedWallpapers, ...nextItems];
+
+      event.target.complete();
+
+      if (this.displayedWallpapers.length >= this.wallpapers.length) {
+        event.target.disabled = true;
+      }
+    }, 500);
   }
 
   async pickFileFromGallery() {
     try {
-      const result = await FilePicker.pickFiles({ types: ['image/jpeg', 'image/png'], readData: true });
+      const result = await FilePicker.pickFiles({
+        types: ['image/jpeg', 'image/png'],
+        readData: true,
+      });
+
       for (const file of result.files) {
         if (!file.data) continue;
         const mimeType = this.getMimeType(file.name);
@@ -61,13 +92,17 @@ export class HomePage implements OnInit {
         const toast = await this.toastCtrl.create({
           message: this.translate.instant('HOME.UPLOADING') + '...',
           duration: 0,
-          color: 'primary'
+          color: 'primary',
         });
         await toast.present();
 
         try {
-          const newFile = await this.wallpaperService.uploadWallpaper(blob, `${Date.now()}_${file.name}`);
+          const newFile = await this.wallpaperService.uploadWallpaper(
+            blob,
+            `${Date.now()}_${file.name}`
+          );
           this.wallpapers.unshift(newFile); // agregamos al inicio
+          this.displayedWallpapers.unshift(newFile); // lo mostramos al inicio también
           toast.dismiss();
           this.showToast(this.translate.instant('HOME.UPLOAD_SUCCESS'), 'success');
         } catch (err) {
@@ -84,7 +119,8 @@ export class HomePage implements OnInit {
   }
 
   private getMimeType(filename: string) {
-    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
+    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg'))
+      return 'image/jpeg';
     if (filename.endsWith('.png')) return 'image/png';
     return 'application/octet-stream';
   }
@@ -104,16 +140,29 @@ export class HomePage implements OnInit {
         {
           text: this.translate.instant('HOME.DELETE'),
           handler: async () => {
-            const ok = await this.wallpaperService.deleteWallpaper(wallpaper.name);
+            const ok = await this.wallpaperService.deleteWallpaper(
+              wallpaper.name
+            );
             if (ok) {
-              this.wallpapers = this.wallpapers.filter(w => w.name !== wallpaper.name);
-              this.showToast(this.translate.instant('HOME.DELETE_SUCCESS'), 'success');
+              this.wallpapers = this.wallpapers.filter(
+                w => w.name !== wallpaper.name
+              );
+              this.displayedWallpapers = this.displayedWallpapers.filter(
+                w => w.name !== wallpaper.name
+              );
+              this.showToast(
+                this.translate.instant('HOME.DELETE_SUCCESS'),
+                'success'
+              );
             } else {
-              this.showToast(this.translate.instant('HOME.DELETE_FAIL'), 'danger');
+              this.showToast(
+                this.translate.instant('HOME.DELETE_FAIL'),
+                'danger'
+              );
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await confirm.present();
   }
@@ -123,7 +172,10 @@ export class HomePage implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  private async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+  private async showToast(
+    message: string,
+    color: 'success' | 'danger' | 'warning' = 'success'
+  ) {
     const toast = await this.toastCtrl.create({ message, duration: 2000, color });
     toast.present();
   }

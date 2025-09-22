@@ -30,12 +30,13 @@
     "LANGUAGE": "Language",
     "BUTTON": "Update",
     "SUCCESS": "✅ User updated successfully.",
-    "ERROR": "❌ Error updating user."
+    "ERROR": "❌ Error updating user.",
+    "BACK": "Back"
   },
   "HOME": {
     "WELCOME": "Welcome, {{name}}!",
     "EMAIL_INFO": "You are using email: {{email}}",
-    "ACTIONS_TITLE": "Options",
+    "ACTIONS_TITLE": "My Wallpapers",
     "UPDATE_USER": "Update User",
     "LOGOUT": "Logout",
     "LOGOUT_SUCCESS": "✅ Logged out successfully",

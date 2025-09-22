@@ -30,12 +30,13 @@
     "LANGUAGE": "Idioma",
     "BUTTON": "Actualizar",
     "SUCCESS": "✅ Usuario actualizado con éxito.",
-    "ERROR": "❌ Error al actualizar usuario."
+    "ERROR": "❌ Error al actualizar usuario.",
+    "BACK": "volver"
   },
   "HOME": {
     "WELCOME": "¡Bienvenido, {{name}}!",
     "EMAIL_INFO": "Estás usando el correo: {{email}}",
-    "ACTIONS_TITLE": "Opciones",
+    "ACTIONS_TITLE": "mis wallpapers",
     "UPDATE_USER": "Actualizar usuario",
     "LOGOUT": "Cerrar sesión",
     "LOGOUT_SUCCESS": "✅ Sesión cerrada con éxito",

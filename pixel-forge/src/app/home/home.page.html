@@ -4,19 +4,21 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <!-- Bienvenida -->
-  <div *ngIf="currentUser; else noUser" class="welcome-msg">
-    <h2>¡{{ currentUser.name }}!</h2>
+<ion-content class="home-content">
+  <!-- Bienvenida en cuadro morado -->
+  <div *ngIf="currentUser; else noUser" class="welcome-card">
+    <h2>{{ 'HOME.WELCOME' | translate:{name: currentUser.name} }}</h2>
     <p>{{ 'HOME.EMAIL_INFO' | translate:{email: currentUser.email} }}</p>
   </div>
   <ng-template #noUser>
-    <p>{{ 'HOME.NO_USER' | translate }}</p>
+    <div class="welcome-card">
+      <p>{{ 'HOME.NO_USER' | translate }}</p>
+    </div>
   </ng-template>
 
   <!-- Galería 2x2 -->
   <div *ngIf="wallpapers.length > 0; else noWallpapers" class="gallery">
-    <div class="wallpaper" *ngFor="let wallpaper of wallpapers" (click)="deleteWallpaper(wallpaper)">
+    <div class="wallpaper" *ngFor="let wallpaper of displayedWallpapers" (click)="deleteWallpaper(wallpaper)">
       <img [src]="wallpaper.url" />
     </div>
   </div>
@@ -24,27 +26,33 @@
     <p class="ion-text-center">{{ 'HOME.NO_WALLPAPERS' | translate }}</p>
   </ng-template>
 
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMoreWallpapers($event)" *ngIf="displayedWallpapers.length < wallpapers.length">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando más wallpapers...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
   <!-- Indicador de carga -->
   <ion-loading *ngIf="isUploading" [isOpen]="isUploading" [message]="translate.instant('HOME.UPLOADING')"></ion-loading>
 
   <!-- FAB izquierdo: subir wallpaper -->
   <ion-fab vertical="bottom" horizontal="start" slot="fixed">
-    <ion-fab-button (click)="pickFileFromGallery()">
+    <ion-fab-button class="fab-btn" (click)="pickFileFromGallery()">
       <ion-icon name="images-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
   <!-- FAB derecho: menú -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="fabOptionsVisible = !fabOptionsVisible">
+    <ion-fab-button class="fab-btn" (click)="fabOptionsVisible = !fabOptionsVisible">
       <ion-icon name="menu-outline"></ion-icon>
     </ion-fab-button>
 
     <ion-fab-list *ngIf="fabOptionsVisible" side="start">
-      <ion-fab-button color="primary" (click)="router.navigate(['/update-user-info'])">
+      <ion-fab-button class="fab-btn" (click)="router.navigate(['/update-user-info'])">
         <ion-icon name="create-outline"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button color="danger" (click)="logout()">
+      <ion-fab-button class="fab-btn danger-btn" (click)="logout()">
         <ion-icon name="log-out-outline"></ion-icon>
       </ion-fab-button>
     </ion-fab-list>

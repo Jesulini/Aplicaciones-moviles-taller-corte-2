@@ -4,43 +4,54 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
 
-  <!-- Email -->
-  <ion-item>
-    <ion-label position="floating">{{ 'LOGIN.EMAIL' | translate }}</ion-label>
-    <ion-input type="email" [(ngModel)]="email" [disabled]="isLoading"></ion-input>
-  </ion-item>
+  <div class="login-container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'LOGIN.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
 
-  <!-- Password -->
-  <ion-item>
-    <ion-label position="floating">{{ 'LOGIN.PASSWORD' | translate }}</ion-label>
-    <ion-input type="password" [(ngModel)]="password" [disabled]="isLoading"></ion-input>
-  </ion-item>
+      <ion-card-content>
+        <!-- Email -->
+        <ion-item>
+          <ion-label position="floating">{{ 'LOGIN.EMAIL' | translate }}</ion-label>
+          <ion-input type="email" [(ngModel)]="email" [disabled]="isLoading"></ion-input>
+        </ion-item>
 
-  <!-- Login Button -->
-  <ion-button expand="block" (click)="login()" [disabled]="isLoading || !email || !password">
-    <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
-    {{ 'LOGIN.BUTTON' | translate }}
-  </ion-button>
+        <!-- Password -->
+        <ion-item>
+          <ion-label position="floating">{{ 'LOGIN.PASSWORD' | translate }}</ion-label>
+          <ion-input type="password" [(ngModel)]="password" [disabled]="isLoading"></ion-input>
+        </ion-item>
 
-  <!-- Register Button -->
-  <ion-button expand="block" fill="clear" routerLink="/register" [disabled]="isLoading">
-    {{ 'LOGIN.REGISTER' | translate }}
-  </ion-button>
+        <!-- Login Button -->
+        <ion-button expand="block" (click)="login()" [disabled]="isLoading || !email || !password">
+          <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
+          {{ 'LOGIN.BUTTON' | translate }}
+        </ion-button>
 
-  <!-- Language Selector -->
-  <ion-list>
-    <ion-radio-group (ionChange)="changeLanguage($event.detail.value)" [value]="selectedLanguage">
-      <ion-item>
-        <ion-label>Español</ion-label>
-        <ion-radio value="es" [disabled]="isLoading"></ion-radio>
-      </ion-item>
-      <ion-item>
-        <ion-label>English</ion-label>
-        <ion-radio value="en" [disabled]="isLoading"></ion-radio>
-      </ion-item>
-    </ion-radio-group>
-  </ion-list>
+        <!-- Register Button -->
+        <ion-button expand="block" fill="clear" routerLink="/register" [disabled]="isLoading">
+          {{ 'LOGIN.REGISTER' | translate }}
+        </ion-button>
+
+        <!-- Language Selector -->
+        <ion-list>
+          <ion-radio-group (ionChange)="changeLanguage($event.detail.value)" [value]="selectedLanguage">
+            <ion-item>
+              <ion-label>Español</ion-label>
+              <ion-radio value="es" [disabled]="isLoading"></ion-radio>
+            </ion-item>
+            <ion-item>
+              <ion-label>English</ion-label>
+              <ion-radio value="en" [disabled]="isLoading"></ion-radio>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+
+      </ion-card-content>
+    </ion-card>
+  </div>
 
 </ion-content>
