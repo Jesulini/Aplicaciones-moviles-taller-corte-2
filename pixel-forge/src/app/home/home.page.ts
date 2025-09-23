@@ -5,6 +5,11 @@ import { WallpaperService, WallpaperFile } from '../services/wallpaper';
 import { ToastController, AlertController, Platform } from '@ionic/angular';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { TranslateService } from '@ngx-translate/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
+
+// 👇 Importamos el plugin nativo usando Capacitor
+import type { WallpaperPluginType } from '../../typings/pixel-forge-plugin';
+const WallpaperPlugin = registerPlugin<WallpaperPluginType>('WallpaperPlugin');
 
 @Component({
   selector: 'app-home',
@@ -16,7 +21,7 @@ export class HomePage implements OnInit {
   currentUser: any = null;
   wallpapers: WallpaperFile[] = [];
   displayedWallpapers: WallpaperFile[] = [];
-  itemsPerPage = 6; // Cuántos cargar por "página"
+  itemsPerPage = 6;
   isUploading = false;
   fabOptionsVisible = false;
 
@@ -54,12 +59,10 @@ export class HomePage implements OnInit {
     this.loadInitialWallpapers();
   }
 
-  /** Carga los primeros wallpapers */
   private loadInitialWallpapers() {
     this.displayedWallpapers = this.wallpapers.slice(0, this.itemsPerPage);
   }
 
-  /** Carga más wallpapers con infinite scroll */
   loadMoreWallpapers(event: any) {
     setTimeout(() => {
       const nextItems = this.wallpapers.slice(
@@ -101,8 +104,8 @@ export class HomePage implements OnInit {
             blob,
             `${Date.now()}_${file.name}`
           );
-          this.wallpapers.unshift(newFile); // agregamos al inicio
-          this.displayedWallpapers.unshift(newFile); // lo mostramos al inicio también
+          this.wallpapers.unshift(newFile);
+          this.displayedWallpapers.unshift(newFile);
           toast.dismiss();
           this.showToast(this.translate.instant('HOME.UPLOAD_SUCCESS'), 'success');
         } catch (err) {
@@ -131,40 +134,76 @@ export class HomePage implements OnInit {
     return new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
   }
 
-  async deleteWallpaper(wallpaper: WallpaperFile) {
-    const confirm = await this.alertCtrl.create({
-      header: this.translate.instant('HOME.CONFIRM_DELETE'),
-      message: this.translate.instant('HOME.CONFIRM_DELETE_MSG'),
+  async openWallpaperOptions(wallpaper: WallpaperFile) {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('HOME.ACTIONS_TITLE'),
       buttons: [
-        { text: this.translate.instant('HOME.CANCEL'), role: 'cancel' },
+        {
+          text: this.translate.instant('HOME.SET_HOME'),
+          handler: () => {
+            this.setWallpaper(wallpaper, 'home');
+          }
+        },
+        {
+          text: this.translate.instant('HOME.SET_LOCK'),
+          handler: () => {
+            this.setWallpaper(wallpaper, 'lock');
+          }
+        },
         {
           text: this.translate.instant('HOME.DELETE'),
-          handler: async () => {
-            const ok = await this.wallpaperService.deleteWallpaper(
-              wallpaper.name
-            );
-            if (ok) {
-              this.wallpapers = this.wallpapers.filter(
-                w => w.name !== wallpaper.name
-              );
-              this.displayedWallpapers = this.displayedWallpapers.filter(
-                w => w.name !== wallpaper.name
-              );
-              this.showToast(
-                this.translate.instant('HOME.DELETE_SUCCESS'),
-                'success'
-              );
-            } else {
-              this.showToast(
-                this.translate.instant('HOME.DELETE_FAIL'),
-                'danger'
-              );
-            }
-          },
+          role: 'destructive',
+          handler: () => {
+            this.deleteWallpaper(wallpaper);
+          }
         },
-      ],
+        {
+          text: this.translate.instant('HOME.CANCEL'),
+          role: 'cancel'
+        }
+      ]
     });
-    await confirm.present();
+
+    await alert.present();
+  }
+
+  /** 🔥 Aplica el wallpaper usando el plugin nativo con Capacitor */
+  async setWallpaper(wallpaper: WallpaperFile, type: 'home' | 'lock') {
+    if (!Capacitor.isNativePlatform()) {
+      this.showToast('Solo disponible en dispositivo real', 'warning');
+      return;
+    }
+
+    try {
+      const result = await WallpaperPlugin.setWallpaper({
+        url: wallpaper.url,
+        type,
+      });
+      console.log('Respuesta plugin:', result);
+
+      this.showToast(
+        type === 'home'
+          ? this.translate.instant('HOME.SET_HOME_SUCCESS')
+          : this.translate.instant('HOME.SET_LOCK_SUCCESS'),
+        'success'
+      );
+    } catch (err) {
+      console.error('Error aplicando wallpaper:', err);
+      this.showToast(this.translate.instant('HOME.SET_FAIL'), 'danger');
+    }
+  }
+
+  async deleteWallpaper(wallpaper: WallpaperFile) {
+    const ok = await this.wallpaperService.deleteWallpaper(wallpaper.name);
+    if (ok) {
+      this.wallpapers = this.wallpapers.filter(w => w.name !== wallpaper.name);
+      this.displayedWallpapers = this.displayedWallpapers.filter(
+        w => w.name !== wallpaper.name
+      );
+      this.showToast(this.translate.instant('HOME.DELETE_SUCCESS'), 'success');
+    } else {
+      this.showToast(this.translate.instant('HOME.DELETE_FAIL'), 'danger');
+    }
   }
 
   async logout() {

@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content class="home-content">
-  <!-- Bienvenida en cuadro morado -->
+  <!-- Bienvenida -->
   <div *ngIf="currentUser; else noUser" class="welcome-card">
     <h2>{{ 'HOME.WELCOME' | translate:{name: currentUser.name} }}</h2>
     <p>{{ 'HOME.EMAIL_INFO' | translate:{email: currentUser.email} }}</p>
@@ -16,24 +16,40 @@
     </div>
   </ng-template>
 
-  <!-- Galería 2x2 -->
+  <!-- Galería -->
   <div *ngIf="wallpapers.length > 0; else noWallpapers" class="gallery">
-    <div class="wallpaper" *ngFor="let wallpaper of displayedWallpapers" (click)="deleteWallpaper(wallpaper)">
+    <div
+      class="wallpaper"
+      *ngFor="let wallpaper of displayedWallpapers"
+      (click)="openWallpaperOptions(wallpaper)"
+    >
       <img [src]="wallpaper.url" />
     </div>
   </div>
+
   <ng-template #noWallpapers>
     <p class="ion-text-center">{{ 'HOME.NO_WALLPAPERS' | translate }}</p>
   </ng-template>
 
   <!-- Infinite Scroll -->
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMoreWallpapers($event)" *ngIf="displayedWallpapers.length < wallpapers.length">
-    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando más wallpapers...">
+  <ion-infinite-scroll
+    threshold="100px"
+    (ionInfinite)="loadMoreWallpapers($event)"
+    *ngIf="displayedWallpapers.length < wallpapers.length"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando más wallpapers..."
+    >
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 
-  <!-- Indicador de carga -->
-  <ion-loading *ngIf="isUploading" [isOpen]="isUploading" [message]="translate.instant('HOME.UPLOADING')"></ion-loading>
+  <!-- Cargando -->
+  <ion-loading
+    *ngIf="isUploading"
+    [isOpen]="isUploading"
+    [message]="translate.instant('HOME.UPLOADING')"
+  ></ion-loading>
 
   <!-- FAB izquierdo: subir wallpaper -->
   <ion-fab vertical="bottom" horizontal="start" slot="fixed">
