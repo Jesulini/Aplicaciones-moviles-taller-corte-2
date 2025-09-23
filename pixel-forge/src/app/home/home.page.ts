@@ -5,11 +5,7 @@ import { WallpaperService, WallpaperFile } from '../services/wallpaper';
 import { ToastController, AlertController, Platform } from '@ionic/angular';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 import { TranslateService } from '@ngx-translate/core';
-import { Capacitor, registerPlugin } from '@capacitor/core';
-
-// 👇 Importamos el plugin nativo usando Capacitor
-import type { WallpaperPluginType } from '../../typings/pixel-forge-plugin';
-const WallpaperPlugin = registerPlugin<WallpaperPluginType>('WallpaperPlugin');
+import MyCustomPlugin from '../plugins/MyCustomPlugin';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +20,12 @@ export class HomePage implements OnInit {
   itemsPerPage = 6;
   isUploading = false;
   fabOptionsVisible = false;
+
+  public async callPlugin() {
+    console.log('Calling the plugin...');
+    const resp = await MyCustomPlugin.execute();
+    console.log('LOG RESPONSE FROM PLUGIN', JSON.stringify(resp));
+  }
 
   constructor(
     private authService: AuthService,
@@ -139,15 +141,35 @@ export class HomePage implements OnInit {
       header: this.translate.instant('HOME.ACTIONS_TITLE'),
       buttons: [
         {
-          text: this.translate.instant('HOME.SET_HOME'),
-          handler: () => {
-            this.setWallpaper(wallpaper, 'home');
+          text: 'Ejecutar Plugin',
+          handler: async () => {
+            try {
+              console.log('Ejecutando plugin...');
+              const resp = await MyCustomPlugin.execute();
+              console.log('Respuesta del plugin:', resp);
+              this.showToast('Plugin ejecutado con éxito', 'success');
+            } catch (err) {
+              console.error('Error ejecutando plugin:', err);
+              this.showToast('Error ejecutando plugin', 'danger');
+            }
           }
         },
         {
-          text: this.translate.instant('HOME.SET_LOCK'),
-          handler: () => {
-            this.setWallpaper(wallpaper, 'lock');
+          text: 'Fondo Inicio',
+          handler: async () => {
+            await this.setWallpaper(wallpaper, 'home');
+          }
+        },
+        {
+          text: 'Fondo Bloqueo',
+          handler: async () => {
+            await this.setWallpaper(wallpaper, 'lock');
+          }
+        },
+        {
+          text: 'Fondo Ambos',
+          handler: async () => {
+            await this.setWallpaper(wallpaper, 'both');
           }
         },
         {
@@ -167,30 +189,36 @@ export class HomePage implements OnInit {
     await alert.present();
   }
 
-  /** 🔥 Aplica el wallpaper usando el plugin nativo con Capacitor */
-  async setWallpaper(wallpaper: WallpaperFile, type: 'home' | 'lock') {
-    if (!Capacitor.isNativePlatform()) {
-      this.showToast('Solo disponible en dispositivo real', 'warning');
-      return;
-    }
-
+  private async setWallpaper(wallpaper: WallpaperFile, type: 'home' | 'lock' | 'both') {
     try {
-      const result = await WallpaperPlugin.setWallpaper({
-        url: wallpaper.url,
-        type,
-      });
-      console.log('Respuesta plugin:', result);
+      // Descargar la imagen y convertirla en Base64
+      const response = await fetch(wallpaper.url);
+      const blob = await response.blob();
+      const base64 = await this.blobToBase64(blob);
 
-      this.showToast(
-        type === 'home'
-          ? this.translate.instant('HOME.SET_HOME_SUCCESS')
-          : this.translate.instant('HOME.SET_LOCK_SUCCESS'),
-        'success'
-      );
+      const resp = await MyCustomPlugin.setWallpaper({
+        imageBase64: base64,
+        type
+      });
+
+      console.log('Respuesta setWallpaper:', resp);
+      this.showToast(`Fondo establecido (${type})`, 'success');
     } catch (err) {
-      console.error('Error aplicando wallpaper:', err);
-      this.showToast(this.translate.instant('HOME.SET_FAIL'), 'danger');
+      console.error('Error estableciendo wallpaper:', err);
+      this.showToast('Error al establecer fondo', 'danger');
     }
+  }
+
+  private async blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = (reader.result as string).split(',')[1]; // quitar encabezado data:
+        resolve(base64data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 
   async deleteWallpaper(wallpaper: WallpaperFile) {
