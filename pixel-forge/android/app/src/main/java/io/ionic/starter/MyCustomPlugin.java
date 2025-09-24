@@ -17,17 +17,9 @@ import java.io.IOException;
 public class MyCustomPlugin extends Plugin {
 
   @PluginMethod()
-  public void execute(PluginCall call) {
-    JSObject resp = new JSObject();
-    System.out.println("LOG: FROM PLUGIN");
-    resp.put("message", "Hello world");
-    call.resolve(resp);
-  }
-
-  @PluginMethod()
   public void setWallpaper(PluginCall call) {
     String base64Image = call.getString("imageBase64");
-    String type = call.getString("type"); // "home", "lock" o "both"
+    String type = call.getString("type"); // "home", "lock", "both"
 
     if (base64Image == null || base64Image.isEmpty()) {
       call.reject("No image provided");
@@ -45,7 +37,6 @@ public class MyCustomPlugin extends Plugin {
       } else if ("lock".equals(type)) {
         wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK);
       } else {
-        // both
         wallpaperManager.setBitmap(bitmap);
       }
 

@@ -21,12 +21,6 @@ export class HomePage implements OnInit {
   isUploading = false;
   fabOptionsVisible = false;
 
-  public async callPlugin() {
-    console.log('Calling the plugin...');
-    const resp = await MyCustomPlugin.execute();
-    console.log('LOG RESPONSE FROM PLUGIN', JSON.stringify(resp));
-  }
-
   constructor(
     private authService: AuthService,
     private wallpaperService: WallpaperService,
@@ -141,20 +135,6 @@ export class HomePage implements OnInit {
       header: this.translate.instant('HOME.ACTIONS_TITLE'),
       buttons: [
         {
-          text: 'Ejecutar Plugin',
-          handler: async () => {
-            try {
-              console.log('Ejecutando plugin...');
-              const resp = await MyCustomPlugin.execute();
-              console.log('Respuesta del plugin:', resp);
-              this.showToast('Plugin ejecutado con éxito', 'success');
-            } catch (err) {
-              console.error('Error ejecutando plugin:', err);
-              this.showToast('Error ejecutando plugin', 'danger');
-            }
-          }
-        },
-        {
           text: 'Fondo Inicio',
           handler: async () => {
             await this.setWallpaper(wallpaper, 'home');
@@ -191,7 +171,6 @@ export class HomePage implements OnInit {
 
   private async setWallpaper(wallpaper: WallpaperFile, type: 'home' | 'lock' | 'both') {
     try {
-      // Descargar la imagen y convertirla en Base64
       const response = await fetch(wallpaper.url);
       const blob = await response.blob();
       const base64 = await this.blobToBase64(blob);
@@ -213,7 +192,7 @@ export class HomePage implements OnInit {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64data = (reader.result as string).split(',')[1]; // quitar encabezado data:
+        const base64data = (reader.result as string).split(',')[1];
         resolve(base64data);
       };
       reader.onerror = reject;
